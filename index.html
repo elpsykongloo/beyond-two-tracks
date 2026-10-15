@@ -108,7 +108,7 @@ body{margin:0}
           <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 16px">
             <span style="font-size: 14px; font-weight: 600">Track 1 should be Speaker A for all 25 minutes</span>
             <span style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: rgba(247,247,247,.75)">
-              <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 2px; background: rgba(247,247,247,.55)"></span>Right person</span>
+              <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 2px; background: #9641FF"></span>Right person</span>
               <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 2px; background: #FF0132"></span>Wrong person</span>
               <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 2px; background: #3A3A3D"></span>Too little speech</span>
             </span>
@@ -121,14 +121,14 @@ body{margin:0}
             </span>
             <span style="white-space: nowrap"><span style="font-family: var(--font-display); font-weight: 700; font-size: 28px; color: #F7F7F7">{{ov.wrongReleased}} min</span> <span style="font-size: 14px; color: rgba(247,247,247,.72)">wrong</span></span>
           </div>
-          <div class="dsd-reveal" style="position: relative; height: 64px">
-            <div style="position: absolute; inset: 0; display: flex; border-radius: 8px; overflow: hidden">
+          <div class="dsd-reveal" style="position: relative; height: 28px">
+            <div style="position: absolute; inset: 0; display: flex; border-radius: 6px; overflow: hidden">
               <sc-for list="{{ov.released}}" as="s" hint-placeholder-count="10">
                 <div title="{{s.tip}}" style="flex: 0 0 {{s.w}}%; background: {{s.c}}"></div>
               </sc-for>
             </div>
             <sc-for list="{{ov.switches}}" as="w" hint-placeholder-count="5">
-              <div title="{{w.tip}}" style="position: absolute; top: -5px; bottom: -5px; left: {{w.left}}%; width: 2px; margin-left: -1px; background: #F7F7F7"></div>
+              <div title="{{w.tip}}" style="position: absolute; top: -4px; bottom: -4px; left: {{w.left}}%; width: 2px; margin-left: -1px; background: #F7F7F7"></div>
             </sc-for>
           </div>
           <div style="position: relative; height: 32px">
@@ -145,8 +145,8 @@ body{margin:0}
               <span style="font-family: var(--font-display); font-weight: 700; font-size: 28px; color: #F7F7F7">{{ov.wrongRoute}} min</span> <span style="font-size: 14px; color: rgba(247,247,247,.72)">wrong</span>
             </span>
           </div>
-          <div class="dsd-reveal dsd-reveal-late" style="position: relative; height: 64px">
-            <div style="position: absolute; inset: 0; display: flex; border-radius: 8px; overflow: hidden">
+          <div class="dsd-reveal dsd-reveal-late" style="position: relative; height: 28px">
+            <div style="position: absolute; inset: 0; display: flex; border-radius: 6px; overflow: hidden">
               <sc-for list="{{ov.route}}" as="s" hint-placeholder-count="1">
                 <div title="{{s.tip}}" style="flex: 0 0 {{s.w}}%; background: {{s.c}}"></div>
               </sc-for>
@@ -878,9 +878,6 @@ var DSDEMO_DATA = {"flip1":{"id":"flip1","dur":30.0,"mix":"audio/flip1_mix.mp4",
 function dsdemoSec(where) { var p = where.split('–')[0].split(':'); return 60 * +p[0] + +p[1]; }
 function dsdemoClock(s) { s = Math.round(s); var r = s % 60; return Math.floor(s / 60) + ':' + (r < 10 ? '0' : '') + r; }
 
-// Hero bars show right vs wrong, not identity: Speaker A on Track 1 is the right person.
-function dsdemoRight(list) { return list.map(function (s) { return s.c === '#9641FF' ? { w: s.w, c: 'rgba(247,247,247,.55)', tip: s.tip } : s; }); }
-
 // Collapse consecutive same-owner chunks into one band; tips keep the merged time range.
 function dsdemoMerge(list) {
   var out = [];
@@ -1019,7 +1016,7 @@ class Component extends DCLogic {
       hero: hero,
       wm: 24, wmSmall: 22,
       ex: d,
-      ov: { released: dsdemoMerge(dsdemoRight(o.released)), route: dsdemoMerge(dsdemoRight(o.route)), switches: dsdemoSwitches(o.released),
+      ov: { released: dsdemoMerge(o.released), route: dsdemoMerge(o.route), switches: dsdemoSwitches(o.released),
             wrongReleased: o.wrong_released, wrongRoute: o.wrong_route === 0 ? '0' : o.wrong_route,
             markLeft: o.mark.left, markW: o.mark.width, markRight: (100 - o.mark.left - o.mark.width).toFixed(2),
             ticks: ticks },
