@@ -1,0 +1,270 @@
+/* =============================================================
+   Lulula Design System — colors & type
+   Tokens extracted from the Lulula Brand Identity Guideline
+   ("LULULA Brand Identity Guideline" — figma file) and the
+   UI mocks (mobile app + marketing site).
+
+   Lulula is an intimate-tech platform: AI-driven audio fantasy
+   stories, voice-reactive characters, and an app-synced
+   wellness device ("Opal Pro"). The visual system is built
+   around a dark, sensual surface palette with two saturated
+   accents — a vivid signal red and a soft warm purple — laid
+   over noisy violet-on-charcoal gradients.
+   ============================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Figtree:wght@300..900&display=swap");
+
+/* ---------------------------------------------------------
+   Source Serif 4 — Lulula's display & headline face.
+   Variable fonts (opsz + wght) cover all weights from
+   200 (ExtraLight) → 900 (Black), upright and italic.
+   ----------------------------------------------------------- */
+@font-face {
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url("fonts/SourceSerif4-VariableFont_opsz_wght.ttf") format("truetype-variations");
+}
+/* ---------------------------------------------------------
+   SF Pro Text — Lulula's UI body face.
+   SF Pro is Apple-licensed and not on Google Fonts, so the file
+   must be supplied by the user. These @font-face blocks register
+   the family and point at fonts/ files to be uploaded; until then
+   the --font-body fallback stack (-apple-system → Inter → system
+   sans) renders. Do NOT substitute a different family here.
+   ----------------------------------------------------------- */
+:root {
+  /* ---------------------------------------------------------
+     Brand palette — primary
+     Source: Lulula Brand Identity Guideline §3.1 Color Palette
+     --------------------------------------------------------- */
+  --lulula-red:           #FF0132;   /* Primary Red — signal / live / play */
+  --lulula-red-deep:      #990012;   /* Secondary Red — pressed/disabled red */
+  --lulula-red-darker:    #A50013;   /* Tertiary red used on dense ui */
+
+  --lulula-purple:        #9641FF;   /* Primary Purple — premium / brand glow */
+  --lulula-purple-soft:   #D6B5FF;   /* Secondary Purple — Premier pill bg */
+  --lulula-purple-bg:     #F4EBFF;   /* Brand sheet background */
+
+  --lulula-white:         #F7F7F7;   /* Primary "white" — never pure #FFF */
+  --lulula-black:         #1E1E1F;   /* Primary "black" — text & dark BG */
+  --lulula-ink:           #151515;   /* Deeper UI background */
+  --lulula-ink-2:         #2B2B2B;   /* Card surface on dark */
+  --lulula-ink-3:         #060606;   /* Deepest underlay */
+
+  /* Neutrals (from frequency analysis of the .fig) */
+  --lulula-gray-100:      #FCFCFE;
+  --lulula-gray-200:      #EBEBEB;
+  --lulula-gray-300:      #DFDFDF;
+  --lulula-gray-400:      #D2D2D2;
+  --lulula-gray-500:      #B4B4B4;
+  --lulula-gray-600:      #A5A3A3;
+  --lulula-gray-700:      #757474;
+  --lulula-gray-800:      #4B4B4B;
+  --lulula-gray-900:      #2B2B2B;
+
+  /* Semantic — foreground */
+  --fg-1:                 var(--lulula-white);     /* primary on dark */
+  --fg-2:                 rgba(247, 247, 247, 0.80);
+  --fg-3:                 rgba(247, 247, 247, 0.55);
+  --fg-muted:             rgba(247, 247, 247, 0.29);
+  --fg-on-light-1:        var(--lulula-black);
+  --fg-on-light-2:        #4B4B4B;
+  --fg-on-light-3:        #757474;
+
+  /* Semantic — background */
+  --bg-canvas-dark:       var(--lulula-ink);
+  --bg-canvas-light:      var(--lulula-white);
+  --bg-elevated-dark:     var(--lulula-ink-2);
+  --bg-elevated-light:    #FFFFFF;
+
+  /* Frosted-glass card overlay — used on dark hero surfaces.
+     Backgrounds combine a 4-stop grey gradient with a
+     translucent neutral and a 95px backdrop blur. */
+  --glass-fill: linear-gradient(
+    135deg,
+    rgba(180,180,180,0.40) 0%,
+    rgba(165,163,163,0.40) 0%,
+    rgba(255,255,255,0.40) 33%,
+    rgba(210,210,210,0.40) 100%
+  ), linear-gradient(rgba(252,252,254,0.40), rgba(252,252,254,0.40));
+  --glass-fill-strong: linear-gradient(
+    135deg,
+    rgba(180,180,180,0.55) 0%,
+    rgba(255,255,255,0.55) 33%,
+    rgba(210,210,210,0.55) 100%
+  );
+  --glass-blur: 95.7px; /* @kind other */
+  --glass-stroke: rgba(255, 255, 255, 0.30);
+
+  /* Signal / accent surfaces */
+  --accent-play:          var(--lulula-red);          /* CTA round play */
+  --accent-play-pressed:  var(--lulula-red-deep);
+  --accent-premier:       var(--lulula-purple-soft);  /* "Premier" pill on cards */
+  --accent-premium-text:  var(--lulula-purple);
+  --accent-success:       #30D158;                    /* iOS-style success */
+
+  /* ---------------------------------------------------------
+     Typography — families
+     • Source Serif (4) — display, hero, story titles, the
+       "lulula" wordmark, card titles inside the app.
+     • SF Pro Text — UI body, labels, paragraphs (system fallback
+       on Apple; "Inter" elsewhere).
+     • Figtree — used in marketing-site nav/utility (currency
+       picker, microcopy on the V1 website).
+     --------------------------------------------------------- */
+  --font-display: "Source Serif 4", "Source Serif Pro", "Iowan Old Style",
+                  "Georgia", "Times New Roman", serif;
+  --font-body:    -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                  "SF Pro", "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-utility: "Figtree", -apple-system, BlinkMacSystemFont,
+                  "SF Pro Text", "Inter", sans-serif;
+
+  /* Weights actually used in the .fig */
+  --w-light:    300; /* @kind font */
+  --w-regular:  400; /* @kind font */
+  --w-medium:   500; /* @kind font */
+  --w-semibold: 600; /* @kind font */
+  --w-bold:     700; /* @kind font */
+
+  /* Type scale — pulled from the .fig (1080p surfaces) */
+  --fs-hero:    116px; /* Section bumper headings ("Logo Usage") */
+  --fs-display: 92px;  /* Web hero ("Where skincare Begins" etc) */
+  --fs-h1:      64px;  /* Brand-deck section headers */
+  --fs-h2:      48px;
+  --fs-h3:      36px;
+  --fs-h4:      32px;
+  --fs-h5:      24px;  /* Mobile card titles */
+  --fs-body-lg: 20px;
+  --fs-body:    16px;
+  --fs-body-sm: 14px;
+  --fs-label:   12px;
+  --fs-caption: 11px;
+  --fs-micro:   10px;
+
+  /* App UI defaults to 100% */
+  --lh-tight:   1.0; /* @kind font */
+  --lh-normal:  1.25; /* @kind font */
+  --lh-loose:   1.45; /* @kind font */
+
+  /* ---------------------------------------------------------
+     Geometry — radii, spacing, shadow, motion
+     --------------------------------------------------------- */
+  --r-pill:    9999px;
+  --r-xl:      24px;   /* iOS phone bezel, modals */
+  --r-lg:      16px;   /* cards */
+  --r-md:      8px;
+  --r-sm:      6px;
+  --r-xs:      4px;
+  --r-sheet:   200px;  /* the huge brand-deck section frames */
+
+  /* Mobile-first 4-pt grid (the app uses 4 / 8 / 16 / 24 / 32) */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-7:  32px;
+  --space-8:  40px;
+  --space-9:  48px;
+  --space-10: 64px;
+
+  /* Elevation — soft drops over dark surfaces */
+  --shadow-1: 0 4px 4px rgba(0, 0, 0, 0.25);          /* play button */
+  --shadow-2: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-3: 0 20px 60px rgba(0, 0, 0, 0.55);
+  --shadow-glow-red: 0 0 24px rgba(255, 1, 50, 0.55);
+  --shadow-glow-purple: 0 0 32px rgba(150, 65, 255, 0.50);
+
+  /* Motion */
+  --ease-out:  cubic-bezier(0.22, 1, 0.36, 1); /* @kind other */
+  --ease-in:   cubic-bezier(0.50, 0, 0.75, 0); /* @kind other */
+  --ease-soft: cubic-bezier(0.4, 0.0, 0.2, 1); /* @kind other */
+  --t-fast:    140ms; /* @kind other */
+  --t-base:    220ms; /* @kind other */
+  --t-slow:    420ms; /* @kind other */
+}
+
+/* =============================================================
+   Semantic typography — drop-in classes
+   Use these instead of literal sizes when building components.
+   ============================================================= */
+
+.l-display {
+  font-family: var(--font-display);
+  font-weight: var(--w-bold);
+  font-size: var(--fs-display);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.02em;
+  color: var(--fg-1);
+}
+.l-h1 {
+  font-family: var(--font-display);
+  font-weight: var(--w-bold);
+  font-size: var(--fs-h1);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.015em;
+  color: var(--fg-1);
+}
+.l-h2 {
+  font-family: var(--font-display);
+  font-weight: var(--w-bold);
+  font-size: var(--fs-h2);
+  line-height: var(--lh-tight);
+}
+.l-h3 {
+  font-family: var(--font-display);
+  font-weight: var(--w-semibold);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-tight);
+}
+.l-card-title {
+  /* Story / character card title inside the app */
+  font-family: var(--font-display);
+  font-weight: var(--w-bold);
+  font-size: var(--fs-h5);          /* 24px */
+  line-height: var(--lh-tight);
+  color: var(--fg-1);
+}
+.l-section {
+  font-family: var(--font-body);
+  font-weight: var(--w-semibold);
+  font-size: var(--fs-body-lg);     /* 20px section headers */
+  line-height: var(--lh-tight);
+}
+.l-body {
+  font-family: var(--font-body);
+  font-weight: var(--w-regular);
+  font-size: var(--fs-body);        /* 16 */
+  line-height: var(--lh-loose);
+  color: var(--fg-1);
+}
+.l-body-sm {
+  font-family: var(--font-body);
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-loose);
+  color: var(--fg-2);
+}
+.l-meta {
+  /* Tab bar labels, caption, microcopy */
+  font-family: var(--font-body);
+  font-weight: var(--w-regular);
+  font-size: var(--fs-label);       /* 12 */
+  line-height: var(--lh-tight);
+  color: var(--fg-3);
+}
+.l-eyebrow {
+  /* "PREMIER" / "ACE" / category badges */
+  font-family: var(--font-body);
+  font-weight: var(--w-medium);
+  font-size: var(--fs-label);
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+.l-utility {
+  font-family: var(--font-utility);
+  font-weight: var(--w-medium);
+  font-size: var(--fs-body-sm);
+}

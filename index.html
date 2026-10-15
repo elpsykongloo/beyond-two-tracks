@@ -1,0 +1,1050 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beyond Two Tracks: Speaker-Anchored Full-Duplex Dialogue Recovery</title>
+<meta name="description" content="Anchored routing keeps each person on their own track across long conversations: wrong-track time 44.9% to 4.1% on 64 held-out 25-minute calls, with audio examples.">
+<meta property="og:title" content="Beyond Two Tracks: Speaker-Anchored Full-Duplex Dialogue Recovery">
+<meta property="og:description" content="Anchored routing keeps each person on their own track across long conversations: wrong-track time 44.9% to 4.1% on 64 held-out 25-minute calls, with audio examples.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#151515">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%239641FF'/%3E%3Crect x='7' y='9' width='18' height='5' rx='2.5' fill='%23F7F7F7'/%3E%3Crect x='7' y='18' width='18' height='5' rx='2.5' fill='%23FF0132'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="ds/lululadesignsystem-f91268/colors_and_type.css">
+<style>
+html{scroll-behavior:smooth;background:#151515}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.dc-play{transition:transform 140ms cubic-bezier(.4,0,.2,1)}
+.dc-play:active{background:#990012 !important;transform:scale(.97)}
+body{margin:0;background:#151515}
+a{color:#D6B5FF}a:hover{color:#F7F7F7}
+.dsd-split{grid-template-columns:minmax(0,1fr)}
+.dsd-hero{grid-template-columns:minmax(0,1fr);grid-template-areas:"title" "card" "meta"}
+@media (min-width:1024px){.dsd-split{grid-template-columns:minmax(0,5fr) minmax(0,7fr) !important}
+.dsd-hero{grid-template-columns:minmax(0,5fr) minmax(0,7fr);grid-template-areas:"title card" "meta card"}
+.dsd-hero-title{align-self:end}.dsd-hero-meta{align-self:start}}
+@keyframes dsdReveal{from{clip-path:inset(-8px 100% -8px 0)}to{clip-path:inset(-8px 0 -8px 0)}}
+.dsd-reveal{animation:dsdReveal 900ms cubic-bezier(.2,.7,.2,1) backwards}
+.dsd-reveal-late{animation-delay:300ms}
+@media (prefers-reduced-motion:reduce){.dsd-reveal{animation:none}}
+.dsd-h2{font-size:28px}
+@media (min-width:768px){.dsd-h2{font-size:40px}}
+.dsd-sec{padding:80px 0}.dsd-sec-b{padding:0 0 80px}.dsd-band{padding:80px 0}
+.dsd-proof3{grid-template-columns:minmax(0,1fr)}
+@media (min-width:768px){.dsd-proof3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.dsd-closing{font-size:56px}
+@media (max-width:900px){
+.dsd-flow{flex-direction:column !important;align-items:stretch !important}
+.dsd-chev{transform:rotate(90deg);align-self:center}
+}
+@media (max-width:600px){
+.dsd-wrap{padding-left:16px !important;padding-right:16px !important}
+.dsd-sec{padding:56px 0}.dsd-sec-b{padding:0 0 56px}.dsd-band{padding:56px 0}
+.dsd-panel{padding:20px !important}
+.dsd-nav{display:none !important}
+.dsd-stat{flex-direction:row !important;align-items:baseline !important;gap:16px !important}
+.dsd-stat-num{font-size:28px !important;flex:0 0 auto}
+.dsd-hero-num{font-size:56px !important}
+.dsd-h1{font-size:40px !important}
+.dsd-cta{width:100%;justify-content:center;box-sizing:border-box}
+.dsd-closing{font-size:28px}
+}
+body{margin:0}
+.dsdp-btn{flex:0 0 104px}
+@media (max-width:600px){.dsdp-btn{flex-basis:72px !important;padding:0 8px !important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<noscript><p style="color:#F7F7F7;font-family:sans-serif;padding:24px">This page needs JavaScript to play the audio examples.</p></noscript>
+<template id="tpl-main">
+<div style="background: #151515; color: #F7F7F7; font-family: var(--font-body); min-height: 600px">
+
+<header style="position: relative; overflow: hidden; padding: 0 0 56px">
+  <x-import component-from-global-scope="LululaDesignSystem_f91268.Backdrop" src="ds/lululadesignsystem-f91268/assets/web/noisy-gradient-purple.jpg" scrim="deep"></x-import>
+  <div class="dsd-wrap" style="position: relative; max-width: 1120px; margin: 0 auto; padding: 0 24px; display: flex; flex-direction: column; gap: 32px">
+    <nav style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-top: 20px">
+      <x-import component-from-global-scope="LululaDesignSystem_f91268.Wordmark" size="{{wm}}"></x-import>
+      <div class="dsd-nav" style="display: flex; flex-wrap: wrap; gap: 20px; font-family: var(--font-utility); font-size: 14px; font-weight: 500">
+        <a href="#listen" style="color: rgba(247,247,247,.85); text-decoration: none; padding: 12px 0">Listen</a>
+        <a href="#method" style="color: rgba(247,247,247,.85); text-decoration: none; padding: 12px 0">Method</a>
+        <a href="#floor" style="color: rgba(247,247,247,.85); text-decoration: none; padding: 12px 0">Floor-Holding</a>
+        <a href="#evidence" style="color: rgba(247,247,247,.85); text-decoration: none; padding: 12px 0">Evidence</a>
+      </div>
+    </nav>
+
+    <div class="dsd-hero" style="display: grid; gap: 28px 48px; align-items: center">
+      <div class="dsd-hero-title" style="grid-area: title; display: flex; flex-direction: column; gap: 16px">
+        <h1 class="dsd-h1" style="margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 56px; line-height: 1; letter-spacing: -0.02em">Beyond Two Tracks</h1>
+        <p style="margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 20px; line-height: 1.3; color: #D6B5FF">Speaker-Anchored Full-Duplex Dialogue Recovery</p>
+        <p style="margin: 0; font-size: 16px; line-height: 1.5; color: rgba(247,247,247,.82); max-width: 440px">Enroll two people once. Every chunk of a long conversation lands on the right person’s track.</p>
+      </div>
+      <div class="dsd-hero-meta" style="grid-area: meta; display: flex; flex-direction: column; gap: 20px">
+        <div style="display: flex; flex-direction: column; gap: 4px; line-height: 1.45">
+          <div style="font-size: 14px; color: #F7F7F7">Yuxuan Chen¹ · Yang Xiao² · Jack Sun³ · Chak Sun³ · Brick Li³ · Sam³†</div>
+          <div style="font-size: 12px; color: rgba(247,247,247,.7)">¹The Chinese University of Hong Kong, Shenzhen · ²The University of Melbourne · ³Lulula · †Corresponding author</div>
+        </div>
+        <div style="display: flex">
+          <a href="#listen" class="dsd-cta" style="display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 26px; border-radius: 9999px; background: #F7F7F7; color: #151515; text-decoration: none; font-weight: 600; font-size: 16px; box-shadow: 0 0 18px rgba(150,65,255,.45)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#151515" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+            Hear the Difference
+          </a>
+        </div>
+      </div>
+
+      <div class="dsd-panel" style="grid-area: card; min-width: 0; background: rgba(16,16,17,.78); border: 1px solid rgba(255,255,255,.1); border-radius: 20px; padding: 28px; box-shadow: 0 0 0 1px rgba(150,65,255,.25), 0 24px 80px rgba(150,65,255,.18); display: flex; flex-direction: column; gap: 24px">
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <div style="font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #D6B5FF">Wrong-track time · 64 held-out calls · 26.7 h</div>
+          <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px">
+            <span style="font-family: var(--font-display); font-weight: 700; font-size: 28px; color: rgba(247,247,247,.65); text-decoration: line-through; text-decoration-thickness: 2px; white-space: nowrap">44.9%</span>
+            <svg width="28" height="16" viewBox="0 0 28 16" aria-hidden="true" style="flex: 0 0 auto"><path d="M2 8h22M18 2l6 6-6 6" fill="none" stroke="rgba(247,247,247,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            <span style="position: relative; display: inline-block">
+              <span aria-hidden="true" style="position: absolute; left: -60px; right: -60px; top: -40px; bottom: -40px; background: radial-gradient(closest-side, rgba(150,65,255,.4), rgba(150,65,255,0)); pointer-events: none"></span>
+              <span class="dsd-hero-num" style="position: relative; font-family: var(--font-display); font-weight: 700; font-size: 96px; line-height: 0.9; letter-spacing: -0.03em; color: #F7F7F7; white-space: nowrap">4.1%</span>
+            </span>
+          </div>
+          <div style="font-size: 16px; line-height: 1.45; color: rgba(247,247,247,.86)">of speech on the wrong person’s track · baseline → anchored routing</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 16px">
+            <span style="font-size: 14px; font-weight: 600">Track 1 should be Speaker A for all 25 minutes</span>
+            <span style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: rgba(247,247,247,.75)">
+              <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 2px; background: #9641FF"></span>A</span>
+              <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 2px; background: #FF0132"></span>B</span>
+              <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 2px; background: #3A3A3D"></span>Too little speech</span>
+            </span>
+          </div>
+          <div style="font-size: 12px; line-height: 1.45; color: rgba(247,247,247,.7)">{{hero.hint}}</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px">
+            <span style="display: inline-flex; align-items: center; gap: 10px; min-width: 0">
+              <x-import component-from-global-scope="LululaDesignSystem_f91268.PlayButton" size="{{hero.pb}}" playing="{{hero.relPlaying}}" aria-label="{{hero.relLabel}}" on-click="{{hero.playRel}}"></x-import>
+              <span style="font-size: 14px; color: rgba(247,247,247,.86)">Baseline, no anchors</span>
+            </span>
+            <span style="white-space: nowrap"><span style="font-family: var(--font-display); font-weight: 700; font-size: 28px; color: #F7F7F7">{{ov.wrongReleased}} min</span> <span style="font-size: 14px; color: rgba(247,247,247,.72)">wrong</span></span>
+          </div>
+          <div class="dsd-reveal" style="position: relative; height: 64px">
+            <div style="position: absolute; inset: 0; display: flex; border-radius: 8px; overflow: hidden">
+              <sc-for list="{{ov.released}}" as="s" hint-placeholder-count="10">
+                <div title="{{s.tip}}" style="flex: 0 0 {{s.w}}%; background: {{s.c}}"></div>
+              </sc-for>
+            </div>
+            <sc-for list="{{ov.switches}}" as="w" hint-placeholder-count="5">
+              <div title="{{w.tip}}" style="position: absolute; top: -5px; bottom: -5px; left: {{w.left}}%; width: 2px; margin-left: -1px; background: #F7F7F7"></div>
+            </sc-for>
+          </div>
+          <div style="position: relative; height: 32px">
+            <div style="position: absolute; top: 0; left: {{ov.markLeft}}%; width: {{ov.markW}}%; min-width: 12px; height: 10px; box-sizing: border-box; border: 2px solid #9641FF; border-top: 0; border-radius: 0 0 3px 3px"></div>
+            <a href="#listen" style="position: absolute; top: 10px; right: {{ov.markRight}}%; display: inline-flex; align-items: center; min-height: 24px; font-size: 12px; font-weight: 600; color: #F7F7F7; text-decoration: none; white-space: nowrap">{{hero.markText}}</a>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+            <span style="display: inline-flex; align-items: center; gap: 10px; min-width: 0">
+              <x-import component-from-global-scope="LululaDesignSystem_f91268.PlayButton" size="{{hero.pb}}" playing="{{hero.routePlaying}}" aria-label="{{hero.routeLabel}}" on-click="{{hero.playRoute}}"></x-import>
+              <span style="font-size: 14px; color: rgba(247,247,247,.86)">Anchored routing</span>
+            </span>
+            <span style="display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="align-self: center"><path d="M4 12.5l5 5L20 6.5" fill="none" stroke="#9641FF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              <span style="font-family: var(--font-display); font-weight: 700; font-size: 28px; color: #F7F7F7">{{ov.wrongRoute}} min</span> <span style="font-size: 14px; color: rgba(247,247,247,.72)">wrong</span>
+            </span>
+          </div>
+          <div class="dsd-reveal dsd-reveal-late" style="position: relative; height: 64px">
+            <div style="position: absolute; inset: 0; display: flex; border-radius: 8px; overflow: hidden">
+              <sc-for list="{{ov.route}}" as="s" hint-placeholder-count="1">
+                <div title="{{s.tip}}" style="flex: 0 0 {{s.w}}%; background: {{s.c}}"></div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="position: relative; height: 18px; font-size: 12px; color: rgba(247,247,247,.66)">
+            <sc-for list="{{ov.ticks}}" as="k" hint-placeholder-count="6">
+              <span style="position: absolute; left: {{k.left}}%; transform: translateX({{k.shift}}%); white-space: nowrap">{{k.label}}</span>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 20px 32px">
+      <div class="dsd-stat" style="border-top: 2px solid #9641FF; padding-top: 14px; display: flex; flex-direction: column; gap: 8px">
+        <div class="dsd-stat-num" style="font-family: var(--font-display); font-weight: 700; font-size: 28px; line-height: 1; white-space: nowrap">64 / 64</div>
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <div style="font-size: 14px; line-height: 1.4; color: #F7F7F7">calls with the named person on each track, start to finish</div>
+          <div style="font-size: 12px; line-height: 1.4; color: rgba(247,247,247,.72)">35 / 64 without anchors</div>
+        </div>
+      </div>
+      <div class="dsd-stat" style="border-top: 2px solid #9641FF; padding-top: 14px; display: flex; flex-direction: column; gap: 8px">
+        <div class="dsd-stat-num" style="font-family: var(--font-display); font-weight: 700; font-size: 28px; line-height: 1; white-space: nowrap">17.8%</div>
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <div style="font-size: 14px; line-height: 1.4; color: #F7F7F7">wrong-track time while one person holds the floor</div>
+          <div style="font-size: 12px; line-height: 1.4; color: rgba(247,247,247,.72)">vs 28.6% for waveform re-ID with the same enrollment</div>
+        </div>
+      </div>
+      <div class="dsd-stat" style="border-top: 2px solid #9641FF; padding-top: 14px; display: flex; flex-direction: column; gap: 8px">
+        <div class="dsd-stat-num" style="font-family: var(--font-display); font-weight: 700; font-size: 28px; line-height: 1; white-space: nowrap">+2.8%</div>
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <div style="font-size: 14px; line-height: 1.4; color: #F7F7F7">runtime for 1.84 M parameters</div>
+          <div style="font-size: 12px; line-height: 1.4; color: rgba(247,247,247,.72)">generator weights untouched</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main style="display: flex; flex-direction: column">
+
+  <section id="problem" class="dsd-sec">
+    <div class="dsd-split dsd-wrap" style="max-width: 1120px; margin: 0 auto; padding: 0 24px; display: grid; gap: 24px 56px; align-items: start">
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <div style="font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #D6B5FF">Why It Matters</div>
+        <h2 class="dsd-h2" style="margin: 0; font-family: var(--font-display); font-weight: 700; line-height: 1.05; letter-spacing: -0.015em">Two Voices Are Not Yet Two Tracks</h2>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 24px">
+        <p style="margin: 0; font-size: 20px; line-height: 1.5; color: #F7F7F7; text-wrap: pretty">Full-duplex dialogue models learn turn-taking from recordings with one track per person, yet most conversations exist only as a mix. Turning a mix into that data needs Track 1 to be the same person from the first minute to the last.</p>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 32px">
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="align-self: flex-start; font-family: var(--font-display); font-weight: 700; font-size: 40px; line-height: 1; white-space: nowrap; padding-bottom: 6px; border-bottom: 4px solid #FF0132">43.9%</span>
+            <span style="font-size: 14px; line-height: 1.45; color: rgba(247,247,247,.78)">wrong-track time with no cross-chunk alignment</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="align-self: flex-start; font-family: var(--font-display); font-weight: 700; font-size: 40px; line-height: 1; white-space: nowrap; padding-bottom: 6px; border-bottom: 4px solid #FF0132">44.9%</span>
+            <span style="font-size: 14px; line-height: 1.45; color: rgba(247,247,247,.78)">with the released overlap-cosine alignment</span>
+          </div>
+        </div>
+        <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(247,247,247,.82); text-wrap: pretty">Generative separation recovers the voices chunk by chunk, and every boundary re-decides which voice takes which slot. Over 26.7 hours of 25-minute calls, a quarter to a third of a floor-holder’s words leave their own track — and on these long calls the released alignment rule does not bring the error down.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="listen" class="dsd-band" style="background: radial-gradient(60% 50% at 50% 60%, rgba(150,65,255,.14), rgba(150,65,255,0)), #101011; border-top: 1px solid rgba(255,255,255,.08); border-bottom: 1px solid rgba(255,255,255,.08); padding-top: 64px; padding-bottom: 64px">
+    <div class="dsd-wrap" style="max-width: 1120px; margin: 0 auto; padding: 0 24px; display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 24px">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div style="font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #D6B5FF">Listen</div>
+          <h2 class="dsd-h2" style="margin: 0; font-family: var(--font-display); font-weight: 700; line-height: 1.05; letter-spacing: -0.015em">Hear the Swap — and Hear It Disappear</h2>
+        </div>
+        <div role="group" aria-label="Choose an example" style="display: flex; flex-wrap: wrap; gap: 8px">
+          <sc-for list="{{listenTabs}}" as="b" hint-placeholder-count="2">
+            <button type="button" onClick="{{b.pick}}" aria-pressed="{{b.pressed}}" style="min-height: 44px; padding: 0 20px; border-radius: 9999px; border: 1px solid {{b.border}}; background: {{b.bg}}; color: {{b.color}}; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer">{{b.label}}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px">
+        <sc-if value="{{listen1}}" hint-placeholder-val="{{true}}">
+          <h3 style="margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 20px">Example 1 · The Slots Trade Places at a Chunk Boundary</h3>
+        </sc-if>
+        <sc-if value="{{listen2}}" hint-placeholder-val="{{false}}">
+          <h3 style="margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 20px">Example 2 · A Different Call, the Same Failure</h3>
+        </sc-if>
+        <span style="font-size: 14px; color: rgba(247,247,247,.72)">CANDOR remote call, held-out · {{listenEx.where}}</span>
+      </div>
+      <dc-import name="Player" ex="{{listenEx}}" hint-size="100%,520px"></dc-import>
+    </div>
+  </section>
+
+  <section id="method" class="dsd-sec">
+    <div class="dsd-wrap" style="max-width: 1120px; margin: 0 auto; padding: 0 24px; display: flex; flex-direction: column; gap: 40px">
+      <div class="dsd-split" style="display: grid; gap: 24px 48px; align-items: center">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div style="font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #D6B5FF">Method</div>
+          <h2 class="dsd-h2" style="margin: 0; font-family: var(--font-display); font-weight: 700; line-height: 1.05; letter-spacing: -0.015em">Decide Who, Then Generate</h2>
+          <p style="margin: 0; font-size: 20px; line-height: 1.5; color: rgba(247,247,247,.86); text-wrap: pretty">In two-stage generative separation, track identity is settled before diffusion: the generator copies the order of the coarse streams it receives. Anchoring acts at exactly that point.</p>
+        </div>
+        <div class="dsd-panel" style="min-width: 0; background: #1E1E1F; border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 24px">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px">
+            <span style="font-size: 16px; font-weight: 600">Where identity is decided</span>
+            <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(247,247,247,.72)"><span style="width: 2px; height: 12px; background: #F7F7F7"></span>chance, 50%</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 16px">
+              <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                <span style="font-size: 16px; font-weight: 600">The generator follows the order it is given</span>
+                <span style="font-size: 14px; line-height: 1.45; color: rgba(247,247,247,.72)">Track 1 carries Speaker A in 197 of 200 clips; reverse the order mid-clip and 96.8% of outputs follow.</span>
+              </div>
+              <span style="font-family: var(--font-display); font-weight: 700; font-size: 40px; line-height: 1; white-space: nowrap">98.5%</span>
+            </div>
+            <div style="position: relative; height: 24px">
+              <div style="position: absolute; inset: 0; border-radius: 6px; background: rgba(255,255,255,.08)"></div>
+              <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 98.5%; border-radius: 6px; background: #9641FF"></div>
+              <div style="position: absolute; left: 50%; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: #F7F7F7"></div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 16px">
+              <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                <span style="font-size: 16px; font-weight: 600">It cannot correct a misordered input</span>
+                <span style="font-size: 14px; line-height: 1.45; color: rgba(247,247,247,.72)">Given the anchors and 16,000 training steps, the generator stays at chance — identity has to be set before generation.</span>
+              </div>
+              <span style="display: inline-flex; flex-direction: column; align-items: flex-end; gap: 4px">
+                <span style="font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 9999px; border: 1px solid rgba(255,255,255,.4); white-space: nowrap">≈ chance</span>
+                <span style="font-family: var(--font-display); font-weight: 700; font-size: 40px; line-height: 1; white-space: nowrap">46.9%</span>
+              </span>
+            </div>
+            <div style="position: relative; height: 24px">
+              <div style="position: absolute; inset: 0; border-radius: 6px; background: rgba(255,255,255,.08)"></div>
+              <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 46.9%; border-radius: 6px; background: #6E6E73"></div>
+              <div style="position: absolute; left: 50%; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: #F7F7F7"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dsd-flow" style="display: flex; align-items: stretch; gap: 8px">
+        <div style="flex: 1 1 0; min-width: 0; box-sizing: border-box; padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,.14); background: #1E1E1F; display: flex; flex-direction: column; justify-content: center; gap: 4px">
+          <span style="font-size: 16px; font-weight: 600">Mix</span>
+          <span style="font-size: 14px; color: rgba(247,247,247,.72)">one recording, two voices</span>
+        </div>
+        <svg class="dsd-chev" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" style="flex: 0 0 auto; align-self: center"><path d="M9 5l7 7-7 7" fill="none" stroke="rgba(247,247,247,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <div style="flex: 1 1 0; min-width: 0; box-sizing: border-box; padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,.14); background: #1E1E1F; display: flex; flex-direction: column; justify-content: center; gap: 4px">
+          <span style="display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="rgba(247,247,247,.72)" stroke-width="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="rgba(247,247,247,.72)" stroke-width="2"></path></svg>Stage 1</span>
+          <span style="font-size: 14px; color: rgba(247,247,247,.72)">coarse streams u<sub>1</sub>, u<sub>2</sub> · frozen</span>
+        </div>
+        <svg class="dsd-chev" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" style="flex: 0 0 auto; align-self: center"><path d="M9 5l7 7-7 7" fill="none" stroke="rgba(247,247,247,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <div style="flex: 1.4 1 0; min-width: 0; box-sizing: border-box; padding: 16px; border-radius: 12px; border: 2px solid #9641FF; background: rgba(150,65,255,.18); box-shadow: 0 0 24px rgba(150,65,255,.35); display: flex; flex-direction: column; justify-content: center; gap: 4px">
+          <span style="font-size: 16px; font-weight: 700">Anchored router · 1.84 M</span>
+          <span style="font-size: 14px; color: #F7F7F7">anchors e<sub>A</sub>, e<sub>B</sub> from enrollment</span>
+          <span style="font-size: 14px; color: #D6B5FF">1 bit per chunk: keep or swap</span>
+        </div>
+        <svg class="dsd-chev" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" style="flex: 0 0 auto; align-self: center"><path d="M9 5l7 7-7 7" fill="none" stroke="rgba(247,247,247,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <div style="flex: 1 1 0; min-width: 0; box-sizing: border-box; padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,.14); background: #1E1E1F; display: flex; flex-direction: column; justify-content: center; gap: 4px">
+          <span style="display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="rgba(247,247,247,.72)" stroke-width="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="rgba(247,247,247,.72)" stroke-width="2"></path></svg>Diffusion generator</span>
+          <span style="font-size: 14px; color: rgba(247,247,247,.72)">reconstructs speech · frozen</span>
+        </div>
+        <svg class="dsd-chev" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" style="flex: 0 0 auto; align-self: center"><path d="M9 5l7 7-7 7" fill="none" stroke="rgba(247,247,247,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <div style="flex: 1 1 0; min-width: 0; box-sizing: border-box; padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,.14); background: #1E1E1F; display: flex; flex-direction: column; justify-content: center; gap: 6px">
+          <span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600"><span style="width: 10px; height: 10px; border-radius: 2px; background: #9641FF"></span>Track 1 = A</span>
+          <span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600"><span style="width: 10px; height: 10px; border-radius: 2px; background: #FF0132"></span>Track 2 = B</span>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 24px 32px">
+        <div style="border-top: 2px solid #9641FF; padding-top: 16px; display: flex; flex-direction: column; gap: 8px">
+          <div style="font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #D6B5FF">Step 1</div>
+          <div style="font-family: var(--font-display); font-weight: 700; font-size: 20px">Enroll Each Participant</div>
+          <p style="margin: 0; font-size: 16px; line-height: 1.55; color: rgba(247,247,247,.8)">Enrollment speech is averaged into one fixed anchor per person, e<sub>A</sub> and e<sub>B</sub> — who owns each track, for the whole conversation.</p>
+        </div>
+        <div style="border-top: 2px solid #9641FF; padding-top: 16px; display: flex; flex-direction: column; gap: 8px">
+          <div style="font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #D6B5FF">Step 2</div>
+          <div style="font-family: var(--font-display); font-weight: 700; font-size: 20px">Route the Coarse Streams</div>
+          <p style="margin: 0; font-size: 16px; line-height: 1.55; color: rgba(247,247,247,.8)">q = ⟨u<sub>1</sub> − u<sub>2</sub>, e<sub>A</sub> − e<sub>B</sub>⟩. Its sign keeps or swaps the streams; its size is a calibrated confidence.</p>
+        </div>
+        <div style="border-top: 2px solid #9641FF; padding-top: 16px; display: flex; flex-direction: column; gap: 8px">
+          <div style="font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #D6B5FF">Step 3</div>
+          <div style="font-family: var(--font-display); font-weight: 700; font-size: 20px">Generate With Frozen Weights</div>
+          <p style="margin: 0; font-size: 16px; line-height: 1.55; color: rgba(247,247,247,.8)">Speaker similarity 0.435 → 0.438, activity F1 0.849 → 0.851: quality holds while each voice stays on its own track.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="floor" class="dsd-sec-b">
+    <div class="dsd-wrap" style="max-width: 1120px; margin: 0 auto; padding: 0 24px; display: flex; flex-direction: column; gap: 32px">
+      <div style="display: flex; flex-direction: column; gap: 16px; max-width: 760px">
+        <div style="font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #D6B5FF">Where It Wins Most</div>
+        <h2 class="dsd-h2" style="margin: 0; font-family: var(--font-display); font-weight: 700; line-height: 1.05; letter-spacing: -0.015em">Strongest When One Person Holds the Floor</h2>
+        <p style="margin: 0; font-size: 20px; line-height: 1.5; color: rgba(247,247,247,.86); text-wrap: pretty">On CANDOR, 52.2% of speech is one-sided. Re-identification must recognize a near-silent listener; routing compares each talking stream with its own anchor — so the gap widens as conversation grows more one-sided.</p>
+      </div>
+      <div class="dsd-panel" style="background: #1E1E1F; border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 32px">
+        <div class="dsd-split" style="display: grid; gap: 32px 48px; align-items: center">
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #D6B5FF">Floor-holding chunks · CANDOR</div>
+            <div style="font-family: var(--font-display); font-weight: 700; font-size: 56px; line-height: 1; letter-spacing: -0.02em; white-space: nowrap">17.8%</div>
+            <div style="font-size: 16px; line-height: 1.45">wrong-track time with anchored routing</div>
+            <div style="font-size: 16px; line-height: 1.45; color: rgba(247,247,247,.72)">vs 28.6% for waveform re-ID, same enrollment</div>
+            <div style="display: flex"><span style="font-size: 14px; font-weight: 600; padding: 6px 12px; border-radius: 9999px; background: #9641FF; color: #FFFFFF; white-space: nowrap">10.8 pts lower</span></div>
+            <p style="margin: 4px 0 0; font-size: 14px; line-height: 1.5; color: rgba(247,247,247,.72)">Here 20.8% of re-ID decisions fall within a 0.05 margin, against 0.8% in balanced chunks.</p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 16px; min-width: 0">
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 16px">
+              <span style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px"><span style="font-size: 16px; font-weight: 600">Wrong-track time by speaking balance</span><span style="font-size: 14px; color: rgba(247,247,247,.72)">lower is better</span></span>
+              <span style="display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: rgba(247,247,247,.8)">
+                <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 2px; background: #6E6E73"></span>Waveform re-ID</span>
+                <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 2px; background: #9641FF"></span>Anchored routing</span>
+              </span>
+            </div>
+            <sc-for list="{{strata}}" as="r" hint-placeholder-count="3">
+              <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 12px; background: {{r.bg}}">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px">
+                  <span style="font-size: 16px; font-weight: 600">{{r.name}}</span>
+                  <span style="font-size: 12px; color: rgba(247,247,247,.66)">{{r.share}} of speech</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px">
+                  <div style="flex: 1 1 auto; min-width: 0"><div title="{{r.reidTip}}" style="height: 22px; width: {{r.reidW}}%; background: #6E6E73; border-radius: 0 4px 4px 0"></div></div>
+                  <span style="flex: 0 0 52px; font-size: 14px; color: rgba(247,247,247,.75)">{{r.reid}}%</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px">
+                  <div style="flex: 1 1 auto; min-width: 0"><div title="{{r.oursTip}}" style="height: 22px; width: {{r.oursW}}%; background: #9641FF; border-radius: 0 4px 4px 0"></div></div>
+                  <span style="flex: 0 0 52px; font-size: 16px; font-weight: 600">{{r.ours}}%</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <div role="group" aria-label="Choose an example" style="display: flex; flex-wrap: wrap; gap: 8px">
+          <sc-for list="{{floorTabs}}" as="b" hint-placeholder-count="2">
+            <button type="button" onClick="{{b.pick}}" aria-pressed="{{b.pressed}}" style="min-height: 44px; padding: 0 20px; border-radius: 9999px; border: 1px solid {{b.border}}; background: {{b.bg}}; color: {{b.color}}; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer">{{b.label}}</button>
+          </sc-for>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px">
+            <sc-if value="{{floor1}}" hint-placeholder-val="{{true}}">
+              <h3 style="margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 20px">Example 3 · A Monologue, Two Ways to Track It</h3>
+            </sc-if>
+            <sc-if value="{{floor2}}" hint-placeholder-val="{{false}}">
+              <h3 style="margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 20px">Example 4 · Re-ID Loses the Listener</h3>
+            </sc-if>
+            <span style="font-size: 14px; color: rgba(247,247,247,.72)">CANDOR remote call, held-out · {{floorEx.where}}</span>
+          </div>
+          <sc-if value="{{floor1}}" hint-placeholder-val="{{true}}">
+            <p style="margin: 0; font-size: 16px; line-height: 1.5; color: rgba(247,247,247,.78); max-width: 760px">From 0:10 one participant holds the floor while the other listens. Re-identification hands the talker’s voice to the listener’s track; anchored routing keeps both where they belong.</p>
+          </sc-if>
+          <sc-if value="{{floor2}}" hint-placeholder-val="{{false}}">
+            <p style="margin: 0; font-size: 16px; line-height: 1.5; color: rgba(247,247,247,.78); max-width: 760px">Another call, the same pattern: once one voice takes over, re-identification swaps the tracks. Routing stays put.</p>
+          </sc-if>
+        </div>
+        <dc-import name="Player" ex="{{floorEx}}" hint-size="100%,520px"></dc-import>
+      </div>
+    </div>
+  </section>
+
+  <section id="control" class="dsd-band" style="background: #101011; border-top: 1px solid rgba(255,255,255,.08); border-bottom: 1px solid rgba(255,255,255,.08)">
+    <div class="dsd-split dsd-wrap" style="max-width: 1120px; margin: 0 auto; padding: 0 24px; display: grid; gap: 32px 48px; align-items: center">
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <div style="font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #D6B5FF">Control</div>
+        <h2 class="dsd-h2" style="margin: 0; font-family: var(--font-display); font-weight: 700; line-height: 1.05; letter-spacing: -0.015em">The Anchors Decide Who Goes Where</h2>
+        <div style="display: flex; flex-direction: column; gap: 6px; padding: 8px 0">
+          <span style="font-family: var(--font-display); font-weight: 700; font-size: 56px; line-height: 1; letter-spacing: -0.02em; white-space: nowrap">9,516</span>
+          <span style="font-size: 14px; line-height: 1.45; color: rgba(247,247,247,.78)">routing decisions across three corpora and two chunk lengths — every one reverses when the anchors are swapped</span>
+        </div>
+        <p style="margin: 0; font-size: 16px; line-height: 1.55; color: rgba(247,247,247,.82)">Swap the anchors and the score changes sign exactly. Whoever is enrolled first owns Track 1: the tracks follow the people you name.</p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px; min-width: 0">
+        <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px">
+          <h3 style="margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 20px">Example 5 · Same Audio, Anchors Swapped</h3>
+          <span style="font-size: 14px; color: rgba(247,247,247,.72)">CANDOR remote call, held-out · {{ex.ctrl45.where}}</span>
+        </div>
+        <dc-import name="Player" ex="{{ex.ctrl45}}" hint-size="100%,480px"></dc-import>
+      </div>
+    </div>
+  </section>
+
+  <section id="evidence" class="dsd-sec">
+    <div class="dsd-wrap" style="max-width: 1120px; margin: 0 auto; padding: 0 24px; display: flex; flex-direction: column; gap: 32px">
+      <div style="display: flex; flex-direction: column; gap: 16px; max-width: 760px">
+        <div style="font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #D6B5FF">Evidence</div>
+        <h2 class="dsd-h2" style="margin: 0; font-family: var(--font-display); font-weight: 700; line-height: 1.05; letter-spacing: -0.015em">One Router, Three Kinds of Conversation</h2>
+        <p style="margin: 0; font-size: 20px; line-height: 1.5; color: rgba(247,247,247,.86); text-wrap: pretty">Trained on remote calls alone, the router carries over to face-to-face and 8 kHz telephone conversations it has never seen. Its margin marks where a second look pays: verification runs on 20–36% of the output.</p>
+      </div>
+      <div class="dsd-panel" style="background: #1E1E1F; border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 32px; box-shadow: 0 0 0 1px rgba(150,65,255,.25); display: flex; flex-direction: column; gap: 20px">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 16px">
+          <span style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px"><span style="font-size: 16px; font-weight: 600">Wrong-track time</span><span style="font-size: 14px; color: rgba(247,247,247,.72)">lower is better</span></span>
+          <span style="display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: rgba(247,247,247,.8)">
+            <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 9999px; background: #6E6E73"></span>No cross-chunk alignment</span>
+            <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; box-sizing: border-box; border-radius: 9999px; border: 2px solid #9641FF"></span>Routing alone</span>
+            <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 9999px; background: #9641FF"></span>Anchored, final</span>
+          </span>
+        </div>
+        <sc-for list="{{corpora}}" as="c" hint-placeholder-count="3">
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 24px">
+            <div style="flex: 0 0 250px; max-width: 100%; display: flex; flex-direction: column; gap: 4px">
+              <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+                <span style="font-weight: 600; font-size: 16px">{{c.name}}</span>
+                <sc-if value="{{c.unseen}}" hint-placeholder-val="{{true}}">
+                  <span style="font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 9999px; border: 1px solid #D6B5FF; color: #D6B5FF; white-space: nowrap">Unseen in training</span>
+                </sc-if>
+              </div>
+              <span style="font-size: 14px; line-height: 1.45; color: rgba(247,247,247,.72)">{{c.meta}}</span>
+            </div>
+            <div style="position: relative; flex: 1 1 300px; min-width: 0; height: 72px">
+              <div style="position: absolute; left: 0; right: 0; top: 35px; height: 2px; background: rgba(255,255,255,.1)"></div>
+              <div style="position: absolute; left: {{c.afterP}}%; width: {{c.spanP}}%; top: 35px; height: 2px; background: rgba(247,247,247,.45)"></div>
+              <div style="position: absolute; left: {{c.beforeP}}%; top: 29px; width: 14px; height: 14px; margin-left: -7px; border-radius: 9999px; background: #6E6E73"></div>
+              <sc-if value="{{c.hasRing}}" hint-placeholder-val="{{true}}">
+                <div title="{{c.ringTip}}" style="position: absolute; left: {{c.ringP}}%; top: 29px; width: 14px; height: 14px; margin-left: -7px; box-sizing: border-box; border-radius: 9999px; border: 2px solid #9641FF; background: #1E1E1F"></div>
+              </sc-if>
+              <div style="position: absolute; left: {{c.afterP}}%; top: 27px; width: 18px; height: 18px; margin-left: -9px; border-radius: 9999px; background: #9641FF; box-shadow: 0 0 0 3px #1E1E1F"></div>
+              <span style="position: absolute; left: {{c.beforeP}}%; top: 4px; transform: translateX({{c.beforeShift}}%); font-size: 14px; color: rgba(247,247,247,.72); white-space: nowrap">{{c.before}}</span>
+              <span style="position: absolute; left: {{c.afterP}}%; top: 48px; margin-left: {{c.afterNudge}}px; transform: translateX({{c.afterShift}}%); font-family: var(--font-display); font-size: 20px; line-height: 1; font-weight: 700; color: #F7F7F7; white-space: nowrap">{{c.after}}</span>
+            </div>
+          </div>
+        </sc-for>
+        <div style="display: flex; flex-wrap: wrap; gap: 4px 24px">
+          <div style="flex: 0 0 250px; max-width: 100%"></div>
+          <div style="position: relative; flex: 1 1 300px; min-width: 0; height: 18px; font-size: 12px; color: rgba(247,247,247,.66); border-top: 1px solid rgba(255,255,255,.08); padding-top: 6px">
+            <sc-for list="{{axis}}" as="k" hint-placeholder-count="5">
+              <span style="position: absolute; left: {{k.left}}%; transform: translateX({{k.shift}}%); white-space: nowrap">{{k.label}}</span>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      <div class="dsd-proof3" style="display: grid; gap: 24px 32px">
+        <sc-for list="{{proof}}" as="p" hint-placeholder-count="3">
+          <div style="border-top: 2px solid #9641FF; padding-top: 16px; display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #D6B5FF">{{p.eyebrow}}</div>
+            <div style="display: flex; align-items: baseline; gap: 10px; white-space: nowrap">
+              <sc-if value="{{p.hasFrom}}" hint-placeholder-val="{{false}}">
+                <span style="font-family: var(--font-display); font-weight: 700; font-size: 20px; color: rgba(247,247,247,.6)">{{p.from}} →</span>
+              </sc-if>
+              <span style="font-family: var(--font-display); font-weight: 700; font-size: 40px; line-height: 1">{{p.value}}</span>
+            </div>
+            <div style="font-size: 16px; line-height: 1.5; color: rgba(247,247,247,.8)">{{p.text}}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section style="position: relative; overflow: hidden">
+    <x-import component-from-global-scope="LululaDesignSystem_f91268.Backdrop" src="ds/lululadesignsystem-f91268/assets/web/noisy-gradient-purple.jpg" scrim="deep"></x-import>
+    <div class="dsd-wrap" style="position: relative; max-width: 960px; margin: 0 auto; padding: 96px 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 28px; align-items: center; text-align: center">
+      <p class="dsd-closing" style="margin: 0; font-family: var(--font-display); font-weight: 700; line-height: 1.08; letter-spacing: -0.02em; text-wrap: balance">Post-hoc assignment discovers who is on each track. Anchoring decides it.</p>
+      <p style="margin: 0; font-size: 20px; line-height: 1.5; color: rgba(247,247,247,.82); max-width: 720px; text-wrap: pretty">Fix identity before generation, and recovered voices become conversation tracks you can rely on — the data full-duplex dialogue models need.</p>
+      <a href="#listen" class="dsd-cta" style="display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 28px; border-radius: 9999px; background: #F7F7F7; color: #151515; text-decoration: none; font-weight: 600; font-size: 16px; box-shadow: 0 0 18px rgba(150,65,255,.45)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#151515" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+        Hear the Difference
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer style="border-top: 1px solid rgba(255,255,255,.08)">
+  <div class="dsd-wrap" style="max-width: 1120px; margin: 0 auto; padding: 36px 24px 48px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; align-items: flex-start">
+    <div style="display: flex; flex-direction: column; gap: 10px; max-width: 680px">
+      <x-import component-from-global-scope="LululaDesignSystem_f91268.Wordmark" size="{{wmSmall}}"></x-import>
+      <p style="margin: 0; font-size: 14px; line-height: 1.55; color: rgba(247,247,247,.66)">Audio: 25–30 s windows from held-out CANDOR sessions. Within each example every system hears the same input with the same diffusion noise; clips share one loudness gain. With the router fixed, three diffusion seeds give 3.99 ± 0.48% wrong-track time on CANDOR. Generative backbone: the publicly released DialogueSidon checkpoint, weights unchanged; every track-identity decision comes from the anchored router. Baseline = the released system with its overlap-cosine alignment.</p>
+    </div>
+    <nav aria-label="Sections" style="display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 14px">
+      <a href="#listen" style="color: rgba(247,247,247,.72); text-decoration: none; padding: 12px 0">Listen</a>
+      <a href="#method" style="color: rgba(247,247,247,.72); text-decoration: none; padding: 12px 0">Method</a>
+      <a href="#floor" style="color: rgba(247,247,247,.72); text-decoration: none; padding: 12px 0">Floor-Holding</a>
+      <a href="#evidence" style="color: rgba(247,247,247,.72); text-decoration: none; padding: 12px 0">Evidence</a>
+    </nav>
+  </div>
+</footer>
+
+</div>
+</template>
+<template id="tpl-player">
+<div style="width: 100%; box-sizing: border-box; font-family: var(--font-body); color: #F7F7F7; background: #1E1E1F; border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: clamp(16px, 2.6vw, 28px); display: flex; flex-direction: column; gap: 20px">
+
+  <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px">
+    <x-import component-from-global-scope="LululaDesignSystem_f91268.PlayButton" size="{{pbSize}}" playing="{{playing}}" aria-label="{{playLabel}}" on-click="{{toggle}}"></x-import>
+    <div style="flex: 1 1 160px; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; font-size: 14px">
+        <span aria-live="polite" style="font-weight: 600">{{nowPlaying}}</span>
+        <span style="font-variant-numeric: tabular-nums; color: rgba(247,247,247,.72)">{{timeText}}</span>
+      </div>
+      <input type="range" min="0" max="{{dur}}" step="0.1" value="{{t}}" onChange="{{seek}}" aria-label="Playback position" style="width: 100%; height: 28px; margin: 0; accent-color: #F7F7F7; cursor: pointer">
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px">
+      <sc-if value="{{hasJump}}" hint-placeholder-val="{{true}}">
+        <button type="button" onClick="{{jumpTo}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 9999px; border: 0; background: #F7F7F7; color: #151515; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 0 18px rgba(150,65,255,.45)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#151515" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+          {{jumpText}}
+        </button>
+      </sc-if>
+      <button type="button" onClick="{{toggleMix}}" aria-pressed="{{mixOn}}" style="min-height: 44px; padding: 0 18px; border-radius: 9999px; border: 1px solid rgba(255,255,255,.3); background: {{mixBg}}; color: #F7F7F7; font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer">{{mixText}}</button>
+    </div>
+  </div>
+
+  <p style="margin: 0; font-size: 16px; line-height: 1.5; color: #F7F7F7; text-wrap: pretty">{{guide}}</p>
+
+  <div style="display: flex; flex-direction: column; gap: 16px">
+    <sc-for list="{{groups}}" as="g" hint-placeholder-count="2">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px">
+          <span style="font-size: 16px; font-weight: 600">{{g.label}}</span>
+          <span style="font-size: 14px; font-weight: 600; line-height: 1; padding: 6px 12px; border-radius: 9999px; border: 1px solid {{g.tagBorder}}; background: {{g.tagBg}}; color: {{g.tagColor}}">{{g.tag}}</span>
+        </div>
+        <sc-for list="{{g.lanes}}" as="l" hint-placeholder-count="2">
+          <div style="display: flex; flex-wrap: nowrap; align-items: stretch; gap: 10px">
+            <button type="button" class="dsdp-btn" onClick="{{l.pick}}" aria-label="{{l.aria}}" aria-pressed="{{l.pressed}}" style="min-height: 44px; box-sizing: border-box; border-radius: 10px; border: 1px solid {{l.border}}; background: {{l.btnBg}}; color: #F7F7F7; font-family: inherit; font-size: 14px; font-weight: {{l.weight}}; text-align: left; padding: 0 12px; cursor: pointer">{{l.label}}</button>
+            <div style="position: relative; flex: 1 1 0; min-width: 0; height: {{l.h}}px; border-radius: 10px; background: {{l.laneBg}}; overflow: hidden">
+              <svg viewBox="0 0 1000 40" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: {{l.op}}">
+                <path d="{{l.dU}}" fill="#4A4A4E"></path>
+                <path d="{{l.dA}}" fill="#9641FF"></path>
+                <path d="{{l.dB}}" fill="#FF0132"></path>
+              </svg>
+              <sc-for list="{{l.bounds}}" as="b" hint-placeholder-count="1">
+                <div style="position: absolute; top: 0; bottom: 0; left: {{b.left}}%; margin-left: -1px; border-left: {{b.line}}"></div>
+              </sc-for>
+              <div style="position: absolute; top: 0; bottom: 0; left: {{l.pct}}%; width: 2px; margin-left: -1px; background: #D6B5FF"></div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; font-size: 12px; color: rgba(247,247,247,.75)">
+    <span style="display: flex; align-items: center; gap: 8px"><span style="width: 10px; height: 10px; border-radius: 2px; background: #9641FF"></span>Speaker A</span>
+    <span style="display: flex; align-items: center; gap: 8px"><span style="width: 10px; height: 10px; border-radius: 2px; background: #FF0132"></span>Speaker B</span>
+    <span style="display: flex; align-items: center; gap: 8px"><span style="width: 2px; height: 14px; background: #D6B5FF"></span>Playhead</span>
+    <sc-if value="{{hasBounds}}" hint-placeholder-val="{{true}}">
+      <span style="display: flex; align-items: center; gap: 8px"><span style="width: 0; height: 14px; border-left: 2px solid #F7F7F7"></span>Swap at a chunk boundary</span>
+      <span style="display: flex; align-items: center; gap: 8px"><span style="width: 0; height: 14px; border-left: 1px dashed rgba(247,247,247,.7)"></span>Chunk boundary, no swap</span>
+    </sc-if>
+  </div>
+</div>
+</template>
+<script src="runtime.js"></script>
+<script>
+DC.define('Player', 'tpl-player', function () {
+
+var DSDEMO_PLAYER_DEFAULT = {"id":"flip1","dur":30.0,"mix":"audio/flip1_mix.mp4","systems":[{"key":"released","label":"Baseline, no anchors","short":"Baseline","t1":"audio/flip1_released_t1.mp4","t2":"audio/flip1_released_t2.mp4","env":[[70,74,44,0,0,0,0,18,0,68,72,78,72,23,0,0,0,0,0,45,77,79,85,59,28,0,0,0,0,0,0,0,58,89,80,90,77,72,59,62,62,68,67,0,0,19,56,51,61,50,17,0,0,0,0,0,0,0,0,74,71,69,71,45,42,0,0,0,0,0,0,0,0,0,16,0,0,0,0,0,0,0,0,60,43,0,0,0,0,40,75,84,82,60,81,70,72,81,70,72,75,63,82,84,77,81,65,65,75,57,69,62,76,58,69,93,83,0,58,84,89,77,77,0,0,0,0,0,84,73,15,85,88,74,48,86,81,69,74,86,70,69,69,60,75,76,72,77,69,76],[0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,27,0,0,0,0,0,0,0,0,0,0,0,0,1,0,72,3,0,0,23,9,0,0,12,0,0,0,0,0,0,0,0,43,58,39,56,56,54,1,16,61,43,44,35,19,17,13,0,0,0,0,0,0,36,4,0,0,1,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,55,16,0,0,0,0,0,0,0,77,74,35,37,0,0,0,4,0,26,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],"spans":[[0.0,13.0,0],[13.0,30.0,1]]},{"key":"route","label":"Anchored routing","short":"Ours","t1":"audio/flip1_route_t1.mp4","t2":"audio/flip1_route_t2.mp4","env":[[75,78,54,0,0,0,0,34,0,70,79,83,78,35,0,0,0,0,0,61,86,83,89,66,30,0,0,0,0,0,0,0,56,92,81,93,84,78,68,71,70,75,72,0,0,24,61,53,69,61,19,0,0,0,0,0,0,0,0,79,76,75,76,53,56,53,66,47,58,61,53,0,27,60,38,50,46,39,30,15,0,9,0,0,0,0,40,12,0,0,5,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,60,13,0,0,0,0,0,0,3,80,67,28,46,0,0,0,0,0,32,29,30,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,56,7,0,0,14,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,63,51,0,0,0,0,42,69,78,79,58,80,70,73,84,75,73,78,64,83,82,77,84,67,64,73,60,69,61,75,59,65,91,80,0,60,83,88,76,74,0,0,0,0,0,77,68,23,77,83,73,38,83,82,72,73,85,68,68,70,62,74,81,75,78,72,78]],"spans":[[0.0,13.0,0],[13.0,30.0,0]]}],"bounds":[13.0],"jump":13.0,"jumpLabel":"Swap at 0:13","where":"22:20–22:50 of a 25-min call","session":"17f79204"};
+
+function dsdemoFmt(s) {
+  s = Math.max(0, Math.floor(s + 0.0001));
+  return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
+}
+
+function dsdemoPaths(env, spans, tr, dur) {
+  var n = env.length, bw = dur / n, segs = [], cur = null, out = ['', '', ''];
+  function ownerAt(tm) {
+    for (var i = 0; i < spans.length; i++) {
+      if (tm >= spans[i][0] && tm < spans[i][1]) return spans[i][2];
+    }
+    return spans.length ? spans[spans.length - 1][2] : null;
+  }
+  for (var i = 0; i < n; i++) {
+    var o = ownerAt((i + 0.5) * bw);
+    var spk = (o === null || o === undefined) ? 2 : (o ^ tr);
+    if (!cur || cur.spk !== spk) { cur = { spk: spk, i0: i, i1: i }; segs.push(cur); } else { cur.i1 = i; }
+  }
+  segs.forEach(function (s) {
+    var top = [], bot = [];
+    for (var j = s.i0; j <= s.i1; j++) {
+      var v = Math.max(1.2, env[j]) / 100 * 18;
+      var x0 = (1000 * j / n).toFixed(1), x1 = (1000 * (j + 1) / n).toFixed(1);
+      top.push(x0 + ',' + (20 - v).toFixed(1), x1 + ',' + (20 - v).toFixed(1));
+      bot.unshift(x1 + ',' + (20 + v).toFixed(1), x0 + ',' + (20 + v).toFixed(1));
+    }
+    out[s.spk] += 'M' + top.join('L') + 'L' + bot.join('L') + 'Z';
+  });
+  return out;
+}
+
+// What Track 1 does over the clip, read from the system's ownership spans.
+function dsdemoVerdict(s) {
+  var sp = s.spans || [];
+  for (var i = 1; i < sp.length; i++) {
+    if (sp[i][2] !== sp[i - 1][2]) return { kind: 'swap', at: sp[i][0] };
+  }
+  var o = sp.length ? sp[0][2] : 0;
+  if (o === 0) return { kind: 'A' };
+  return { kind: s.key === 'rev' ? 'Brev' : 'B' };
+}
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sys: null, track: 1, playing: false, t: 0 };
+    this.uid = 'p' + Math.random().toString(36).slice(2);
+    this.audios = {};
+    this.cur = null;
+    this.isPlaying = false;
+    this.raf = 0;
+    this.lastTick = 0;
+    this.lastSys = null;
+    this.cacheEx = null;
+    this.cacheGroups = null;
+    this.onOther = this.onOther.bind(this);
+    this.tick = this.tick.bind(this);
+  }
+
+  componentDidMount() {
+    window.addEventListener('dsdemo:play', this.onOther);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('dsdemo:play', this.onOther);
+    this.stopAll();
+  }
+
+  componentDidUpdate(prev) {
+    if (prev.ex !== this.props.ex) {
+      this.stopAll();
+      this.audios = {};
+      this.lastSys = null;
+      this.setState({ sys: null, track: 1, playing: false, t: 0 });
+    }
+  }
+
+  ex() { return this.props.ex || DSDEMO_PLAYER_DEFAULT; }
+
+  sysKey() { return this.state.sys || this.ex().systems[0].key; }
+
+  srcFor(sys, track) {
+    var ex = this.ex();
+    if (sys === 'mix') return ex.mix;
+    var s = ex.systems.filter(function (k) { return k.key === sys; })[0];
+    return s ? (track === 1 ? s.t1 : s.t2) : ex.mix;
+  }
+
+  audio(url) {
+    var a = this.audios[url];
+    if (!a) {
+      a = new Audio();
+      a.preload = 'auto';
+      a.src = url;
+      var self = this;
+      a.addEventListener('ended', function () { if (self.cur === a) self.handleEnded(); });
+      this.audios[url] = a;
+    }
+    return a;
+  }
+
+  preloadAll() {
+    var ex = this.ex(), self = this;
+    this.audio(ex.mix);
+    ex.systems.forEach(function (s) { self.audio(s.t1); self.audio(s.t2); });
+  }
+
+  startAt(a, t) {
+    if (this.cur && this.cur !== a) this.cur.pause();
+    this.cur = a;
+    try { a.currentTime = t; } catch (e) {}
+    var self = this, p = a.play();
+    if (p && p.catch) p.catch(function () { self.isPlaying = false; self.setState({ playing: false }); });
+  }
+
+  playFrom(t, sys, track) {
+    this.preloadAll();
+    sys = sys || this.sysKey();
+    track = track || this.state.track;
+    window.dispatchEvent(new CustomEvent('dsdemo:play', { detail: this.uid }));
+    this.startAt(this.audio(this.srcFor(sys, track)), t);
+    this.isPlaying = true;
+    this.setState({ playing: true, t: t, sys: sys, track: track });
+    cancelAnimationFrame(this.raf);
+    this.raf = requestAnimationFrame(this.tick);
+  }
+
+  pause() {
+    var t = this.cur ? this.cur.currentTime : this.state.t;
+    if (this.cur) this.cur.pause();
+    this.isPlaying = false;
+    cancelAnimationFrame(this.raf);
+    this.setState({ playing: false, t: t });
+  }
+
+  stopAll() {
+    var self = this;
+    Object.keys(this.audios).forEach(function (k) { self.audios[k].pause(); });
+    this.isPlaying = false;
+    this.cur = null;
+    cancelAnimationFrame(this.raf);
+  }
+
+  handleEnded() {
+    if (this.cur) { try { this.cur.currentTime = 0; } catch (e) {} }
+    this.isPlaying = false;
+    cancelAnimationFrame(this.raf);
+    this.setState({ playing: false, t: 0 });
+  }
+
+  tick(now) {
+    if (!this.isPlaying) return;
+    if (now - this.lastTick > 90 && this.cur) {
+      this.lastTick = now;
+      this.setState({ t: this.cur.currentTime });
+    }
+    this.raf = requestAnimationFrame(this.tick);
+  }
+
+  onOther(e) {
+    if (e.detail !== this.uid && this.isPlaying) this.pause();
+  }
+
+  choose(sys, track, autoplay) {
+    if (sys !== 'mix') this.lastSys = sys;
+    var t = this.cur ? this.cur.currentTime : this.state.t;
+    if (this.isPlaying) {
+      this.startAt(this.audio(this.srcFor(sys, track)), t);
+      this.setState({ sys: sys, track: track, t: t });
+    } else if (autoplay) {
+      this.playFrom(t, sys, track);
+    } else {
+      this.setState({ sys: sys, track: track, t: t });
+    }
+  }
+
+  groups(ex) {
+    if (this.cacheEx === ex && this.cacheGroups) return this.cacheGroups;
+    var out = [];
+    ex.systems.forEach(function (s) {
+      var v = dsdemoVerdict(s), tag, tagBorder, tagBg, tagColor;
+      if (v.kind === 'swap') {
+        tag = 'Swaps at ' + dsdemoFmt(v.at); tagBorder = '#FF0132'; tagBg = 'transparent'; tagColor = '#FF6B85';
+      } else if (v.kind === 'A') {
+        tag = 'Speaker A throughout'; tagBorder = '#9641FF'; tagBg = '#9641FF'; tagColor = '#FFFFFF';
+      } else if (v.kind === 'Brev') {
+        tag = 'Speaker B throughout, as enrolled'; tagBorder = 'rgba(255,255,255,.4)'; tagBg = 'transparent'; tagColor = '#F7F7F7';
+      } else {
+        tag = 'Wrong speaker throughout'; tagBorder = '#FF0132'; tagBg = 'transparent'; tagColor = '#FF6B85';
+      }
+      var bounds = (ex.bounds || []).map(function (b) {
+        var flip = false;
+        for (var i = 1; i < s.spans.length; i++) {
+          if (Math.abs(s.spans[i][0] - b) < 0.01 && s.spans[i][2] !== s.spans[i - 1][2]) flip = true;
+        }
+        return { left: (100 * b / ex.dur).toFixed(2), line: flip ? '2px solid #F7F7F7' : '1px dashed rgba(247,247,247,.5)' };
+      });
+      var lanes = [0, 1].map(function (tr) {
+        var p = dsdemoPaths(s.env[tr], s.spans, tr, ex.dur);
+        return { sys: s.key, track: tr + 1, label: 'Track ' + (tr + 1), bounds: bounds, h: tr === 0 ? 64 : 44,
+                 aria: 'Play ' + s.label + ', Track ' + (tr + 1), dA: p[0], dB: p[1], dU: p[2] };
+      });
+      out.push({ key: s.key, label: s.label, short: s.short, verdict: v,
+                 tag: tag, tagBorder: tagBorder, tagBg: tagBg, tagColor: tagColor, lanes: lanes });
+    });
+    this.cacheEx = ex;
+    this.cacheGroups = out;
+    return out;
+  }
+
+  guide(ex, groups) {
+    var parts = groups.map(function (g) {
+      var v = g.verdict;
+      if (v.kind === 'swap') return g.short + ' swaps at ' + dsdemoFmt(v.at);
+      if (v.kind === 'A') return g.short + ' keeps Speaker A';
+      if (v.kind === 'Brev') return g.short + ' keeps Speaker B, as enrolled';
+      return g.short + ' carries Speaker B';
+    });
+    var from = (ex.jump || 0) > 0 ? ' from ' + dsdemoFmt(Math.max(0, ex.jump - 3)) : '';
+    return 'Listen to Track 1' + from + ' — ' + parts.join(' · ') + '. Switch lanes mid-clip; playback keeps its place.';
+  }
+
+  renderVals() {
+    var self = this, ex = this.ex(), sys = this.sysKey(), track = this.state.track;
+    var dur = ex.dur, t = Math.min(this.state.t, dur);
+    var pct = (100 * t / dur).toFixed(2);
+    var mix = sys === 'mix';
+    var base = this.groups(ex);
+    var groups = base.map(function (g) {
+      return Object.assign({}, g, {
+        lanes: g.lanes.map(function (l) {
+          var on = !mix && l.sys === sys && l.track === track;
+          return Object.assign({}, l, {
+            pressed: on, weight: on ? 700 : 500,
+            border: on ? '#9641FF' : 'rgba(255,255,255,.12)',
+            btnBg: on ? 'rgba(150,65,255,.24)' : 'rgba(255,255,255,.04)',
+            laneBg: on ? 'rgba(255,255,255,.08)' : 'rgba(255,255,255,.025)',
+            op: (on || mix) ? 1 : 0.85,
+            pct: pct,
+            pick: function () { self.choose(l.sys, l.track, true); }
+          });
+        })
+      });
+    });
+    var sysObj = ex.systems.filter(function (k) { return k.key === sys; })[0];
+    var jumpAt = Math.max(0, (ex.jump || 0) - 3);
+    var jl = ex.jumpLabel || '';
+    return {
+      pbSize: 56,
+      playing: this.state.playing,
+      playLabel: this.state.playing ? 'Pause' : 'Play',
+      toggle: function () { if (self.isPlaying) self.pause(); else self.playFrom(self.cur ? self.cur.currentTime : self.state.t); },
+      nowPlaying: mix ? 'Mix — both voices, as recorded' : (sysObj ? sysObj.label : '') + ' · Track ' + track,
+      timeText: dsdemoFmt(t) + ' / ' + dsdemoFmt(dur),
+      dur: dur,
+      t: t,
+      seek: function (e) {
+        var v = parseFloat(e.target.value);
+        if (self.cur) { try { self.cur.currentTime = v; } catch (err) {} }
+        self.setState({ t: v });
+      },
+      hasJump: (ex.jump || 0) > 0,
+      jumpText: 'Skip to ' + jl.charAt(0).toLowerCase() + jl.slice(1),
+      jumpTo: function () { self.playFrom(jumpAt); },
+      mixOn: mix,
+      mixText: mix ? 'Back to tracks' : 'Hear the mix',
+      mixBg: mix ? 'rgba(255,255,255,.14)' : 'transparent',
+      toggleMix: function () {
+        if (mix) self.choose(self.lastSys || ex.systems[ex.systems.length - 1].key, track, false);
+        else self.choose('mix', track, false);
+      },
+      guide: this.guide(ex, base),
+      hasBounds: (ex.bounds || []).length > 0,
+      groups: groups
+    };
+  }
+}
+
+return Component;
+});
+DC.define('Main', 'tpl-main', function () {
+
+var DSDEMO_DATA = {"flip1":{"id":"flip1","dur":30.0,"mix":"audio/flip1_mix.mp4","systems":[{"key":"released","label":"Baseline, no anchors","short":"Baseline","t1":"audio/flip1_released_t1.mp4","t2":"audio/flip1_released_t2.mp4","env":[[70,74,44,0,0,0,0,18,0,68,72,78,72,23,0,0,0,0,0,45,77,79,85,59,28,0,0,0,0,0,0,0,58,89,80,90,77,72,59,62,62,68,67,0,0,19,56,51,61,50,17,0,0,0,0,0,0,0,0,74,71,69,71,45,42,0,0,0,0,0,0,0,0,0,16,0,0,0,0,0,0,0,0,60,43,0,0,0,0,40,75,84,82,60,81,70,72,81,70,72,75,63,82,84,77,81,65,65,75,57,69,62,76,58,69,93,83,0,58,84,89,77,77,0,0,0,0,0,84,73,15,85,88,74,48,86,81,69,74,86,70,69,69,60,75,76,72,77,69,76],[0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,27,0,0,0,0,0,0,0,0,0,0,0,0,1,0,72,3,0,0,23,9,0,0,12,0,0,0,0,0,0,0,0,43,58,39,56,56,54,1,16,61,43,44,35,19,17,13,0,0,0,0,0,0,36,4,0,0,1,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,55,16,0,0,0,0,0,0,0,77,74,35,37,0,0,0,4,0,26,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],"spans":[[0.0,13.0,0],[13.0,30.0,1]]},{"key":"route","label":"Anchored routing","short":"Ours","t1":"audio/flip1_route_t1.mp4","t2":"audio/flip1_route_t2.mp4","env":[[75,78,54,0,0,0,0,34,0,70,79,83,78,35,0,0,0,0,0,61,86,83,89,66,30,0,0,0,0,0,0,0,56,92,81,93,84,78,68,71,70,75,72,0,0,24,61,53,69,61,19,0,0,0,0,0,0,0,0,79,76,75,76,53,56,53,66,47,58,61,53,0,27,60,38,50,46,39,30,15,0,9,0,0,0,0,40,12,0,0,5,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,60,13,0,0,0,0,0,0,3,80,67,28,46,0,0,0,0,0,32,29,30,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,56,7,0,0,14,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,63,51,0,0,0,0,42,69,78,79,58,80,70,73,84,75,73,78,64,83,82,77,84,67,64,73,60,69,61,75,59,65,91,80,0,60,83,88,76,74,0,0,0,0,0,77,68,23,77,83,73,38,83,82,72,73,85,68,68,70,62,74,81,75,78,72,78]],"spans":[[0.0,13.0,0],[13.0,30.0,0]]}],"bounds":[13.0],"jump":13.0,"jumpLabel":"Swap at 0:13","where":"22:20\u201322:50 of a 25-min call","session":"17f79204"},"flip2":{"id":"flip2","dur":30.0,"mix":"audio/flip2_mix.mp4","systems":[{"key":"released","label":"Baseline, no anchors","short":"Baseline","t1":"audio/flip2_released_t1.mp4","t2":"audio/flip2_released_t2.mp4","env":[[0,0,78,71,57,74,22,0,0,0,63,62,64,63,73,62,66,60,72,74,67,0,0,0,0,79,85,79,71,81,68,45,37,43,83,79,75,79,74,67,81,86,87,88,67,83,89,71,33,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,9,0,0,72,73,45,0,48,80,85,84,83,84,74,4,0,67,89,72,82,64,60,67,62,49,80,63,80,72,65,82,68,0,0,75,78,57,0,21,75,72,53,67],[71,0,0,4,21,3,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,23,0,0,0,24,24,82,67,62,46,0,0,70,66,0,19,92,93,82,87,86,0,0,23,3,0,13,0,14,63,61,69,70,56,38,36,6,0,85,74,53,0,0,0,36,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,0,0,0,0,0,0,11,14,9,0,1,10,0,29,0,0,46,84,81,69,28,71,86,72,31,0,0,0,0,0,0,0,0,0,0,0,39,82,90,13,0,0,0,0,0,58,80,79,77,0,0,11,0,0,0,0,0]],"spans":[[0.0,13.0,1],[13.0,30.0,0]]},{"key":"route","label":"Anchored routing","short":"Ours","t1":"audio/flip2_route_t1.mp4","t2":"audio/flip2_route_t2.mp4","env":[[71,0,0,0,17,0,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,21,0,0,0,21,21,81,66,61,45,0,0,71,67,0,18,92,93,81,87,85,0,0,20,2,0,10,0,11,62,60,69,70,56,37,36,4,0,85,73,52,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,36,80,79,40,20,65,80,84,91,87,89,82,22,0,73,92,74,83,64,58,77,68,50,80,68,82,77,72,81,69,24,1,79,82,60,0,26,75,73,56,68],[0,0,79,72,58,75,22,0,0,0,64,63,66,64,74,63,68,61,73,75,68,0,0,0,0,80,85,80,71,82,69,47,39,44,83,79,75,78,73,68,81,85,87,88,68,83,89,71,34,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,0,0,0,13,0,0,0,0,9,0,20,10,0,0,81,78,70,0,55,88,82,19,0,0,0,12,0,0,0,0,0,0,0,0,79,95,27,0,0,0,0,0,50,91,87,84,0,0,0,0,0,0,0,0]],"spans":[[0.0,13.0,0],[13.0,30.0,0]]}],"bounds":[13.0],"jump":13.0,"jumpLabel":"Swap at 0:13","where":"21:26\u201321:56 of a 25-min call","session":"8c19ef18"},"floor21":{"id":"floor21","dur":30.0,"mix":"audio/floor21_mix.mp4","systems":[{"key":"released","label":"Baseline, no anchors","short":"Baseline","t1":"audio/floor21_released_t1.mp4","t2":"audio/floor21_released_t2.mp4","env":[[18,0,12,0,0,0,0,0,0,0,0,0,42,69,65,58,45,45,0,70,57,92,88,78,85,78,76,78,80,89,80,68,79,72,76,73,77,73,70,78,79,78,82,77,83,84,88,83,78,78,60,50,61,61,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,59,49,0,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,72,73,72,52,0,37,48,46,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,43,0,0,0],[82,80,75,91,86,80,71,70,72,65,68,63,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,66,47,0,16,19,86,83,73,84,65,87,72,83,80,74,86,83,67,84,65,77,82,79,75,76,81,44,66,76,81,76,81,88,76,76,83,52,5,31,79,81,87,89,91,66,77,70,55,64,0,12,0,0,32,0,59,77,79,88,72,87,89,90,74,70,73,62,7,59,69,75,88,85,84,82,80,86,78,84,66,69,74,86,55,67,57,0,16,18,71,68,76,65,0,60,51,46]],"spans":[[0.0,10.0,1],[10.0,30.0,1]]},{"key":"reid","label":"Waveform re-ID","short":"Re-ID","t1":"audio/floor21_reid_t1.mp4","t2":"audio/floor21_reid_t2.mp4","env":[[81,80,74,91,86,80,71,70,71,64,68,63,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,58,50,61,61,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,59,49,0,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,72,73,72,52,0,37,48,46,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,43,0,0,0],[23,0,20,13,0,0,0,0,0,0,0,0,44,71,66,58,49,48,0,71,58,92,88,79,86,79,77,79,80,89,81,69,79,72,76,74,78,74,72,78,80,78,83,77,84,84,88,83,78,77,0,0,27,66,47,0,16,19,86,83,73,84,65,87,72,83,80,74,86,83,67,84,65,77,82,79,75,76,81,44,66,76,81,76,81,88,76,76,83,52,5,31,79,81,87,89,91,66,77,70,55,64,0,12,0,0,32,0,59,77,79,88,72,87,89,90,74,70,73,62,7,59,69,75,88,85,84,82,80,86,78,84,66,69,74,86,55,67,57,0,16,18,71,68,76,65,0,60,51,46]],"spans":[[0.0,10.0,0],[10.0,30.0,1]]},{"key":"route","label":"Anchored routing","short":"Ours","t1":"audio/floor21_route_t1.mp4","t2":"audio/floor21_route_t2.mp4","env":[[78,74,69,89,84,79,70,65,64,59,65,60,0,9,0,0,15,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,39,80,53,0,25,29,88,84,72,85,66,90,72,84,81,71,85,83,68,86,67,79,84,82,80,79,83,43,65,78,82,78,82,90,77,78,83,55,10,35,76,79,87,89,93,71,77,72,58,66,0,12,2,0,0,0,63,80,82,86,73,88,90,91,75,71,74,63,10,60,71,77,91,87,85,86,83,86,78,85,68,70,76,87,55,68,59,4,26,23,74,71,76,66,25,60,49,48],[0,0,0,0,0,0,0,0,0,0,0,0,40,67,64,58,43,46,0,71,59,93,88,79,88,83,79,82,81,89,83,72,83,72,77,72,75,70,68,76,80,78,82,78,84,85,88,84,81,81,69,52,58,45,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,58,43,0,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,71,80,80,52,32,51,37,0,37,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,39,41,0,0,0]],"spans":[[0.0,10.0,0],[10.0,30.0,0]]}],"bounds":[10.0],"jump":10.0,"jumpLabel":"Floor-holding from 0:10","where":"8:26\u20138:56 of a 25-min call","session":"8a852635"},"floor23":{"id":"floor23","dur":30.0,"mix":"audio/floor23_mix.mp4","systems":[{"key":"released","label":"Baseline, no anchors","short":"Baseline","t1":"audio/floor23_released_t1.mp4","t2":"audio/floor23_released_t2.mp4","env":[[84,81,51,67,71,75,73,0,0,0,79,82,74,67,62,62,70,51,62,67,70,69,66,69,61,61,64,63,0,0,0,0,0,0,0,0,0,0,0,0,77,76,68,85,86,84,78,69,75,69,80,68,0,10,86,91,93,97,80,77,91,79,78,71,84,78,90,62,84,62,0,18,63,62,75,14,0,0,40,88,76,79,77,0,0,0,77,84,77,69,83,81,75,86,72,76,84,78,87,76,54,79,85,71,70,82,84,77,76,76,76,63,76,75,70,78,61,85,72,71,69,65,76,50,29,78,57,0,0,69,77,80,71,83,76,71,67,66,81,75,74,64,0,73,72,65,34,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,80,81,82,72,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,0,0,0,0,2,20,39,0,0,16,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],"spans":[[0.0,10.0,0],[10.0,30.0,0]]},{"key":"reid","label":"Waveform re-ID","short":"Re-ID","t1":"audio/floor23_reid_t1.mp4","t2":"audio/floor23_reid_t2.mp4","env":[[84,81,51,67,71,75,73,0,0,0,79,82,74,67,62,62,70,51,62,67,70,69,66,69,61,61,64,63,0,0,0,0,0,0,0,0,0,0,0,0,77,76,68,85,86,84,78,69,75,58,0,0,0,13,0,0,0,0,2,18,36,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,80,81,82,72,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,80,69,2,11,86,91,93,98,80,78,91,81,78,71,84,79,90,62,85,64,0,18,65,63,77,10,0,0,42,88,77,79,78,0,0,0,77,85,78,69,83,83,75,87,73,76,85,78,88,77,56,80,86,72,71,83,84,78,77,76,78,64,77,77,70,79,62,85,73,71,70,67,77,51,31,79,59,0,0,70,78,82,72,84,77,72,69,68,83,76,75,65,0,74,73,65,35,0,0,0]],"spans":[[0.0,10.0,0],[10.0,30.0,1]]},{"key":"route","label":"Anchored routing","short":"Ours","t1":"audio/floor23_route_t1.mp4","t2":"audio/floor23_route_t2.mp4","env":[[82,82,50,69,71,74,72,0,0,0,79,85,79,70,67,68,72,53,67,67,71,68,64,66,63,61,63,62,0,0,0,0,0,0,0,0,0,0,0,0,81,77,70,84,90,84,78,67,75,69,83,68,1,36,84,93,92,95,78,77,88,83,79,71,82,78,88,65,87,66,0,23,69,69,78,13,0,0,44,88,75,81,77,0,0,0,75,83,80,72,83,81,73,86,75,77,89,81,90,76,57,80,86,70,73,81,86,78,79,76,78,63,77,77,73,79,62,84,73,71,69,67,77,51,29,83,61,0,0,71,76,83,73,85,78,76,69,68,81,75,76,65,0,72,72,65,30,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,89,90,88,80,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,0,2,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],"spans":[[0.0,10.0,0],[10.0,30.0,0]]}],"bounds":[10.0],"jump":10.0,"jumpLabel":"Floor-holding from 0:10","where":"13:23\u201313:53 of a 25-min call","session":"50214fe9"},"ctrl45":{"id":"ctrl45","dur":25.0,"mix":"audio/ctrl45_mix.mp4","systems":[{"key":"route","label":"Anchored routing","short":"Ours","t1":"audio/ctrl45_route_t1.mp4","t2":"audio/ctrl45_route_t2.mp4","env":[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,29,53,49,47,44,0,0,0,0,0,0,0,1,45,56,35,24,0,1,0,0,0,0,60,36,0,0,0,0,0,0,2,25,56,82,79,44,67,71,80,80,66,58,74,76,67,48,0,1,12,7,0,0,68,76,56,81,61,29,41,25,0,20,39,13,6,0,0,0,0,0,0,71,91,85,56,28,23,44,89,80,62,2,0,0,0,4,47,46,53,58,82,83,89],[65,84,86,77,86,79,80,69,80,77,81,65,81,63,22,89,89,91,80,88,78,83,88,64,86,79,70,80,76,79,56,21,80,96,76,67,74,78,72,77,87,78,82,87,83,84,85,77,68,72,63,67,68,74,65,46,33,34,44,0,0,74,69,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,34,51,39,0,0,49,57,40,0,0,0,71,54,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],"spans":[[0.0,25.0,0]]},{"key":"rev","label":"Anchors reversed","short":"Reversed","t1":"audio/ctrl45_rev_t1.mp4","t2":"audio/ctrl45_rev_t2.mp4","env":[[71,83,86,74,82,76,80,70,81,78,82,64,82,59,17,88,88,90,80,90,79,79,86,63,86,76,69,81,73,78,52,33,82,97,79,68,75,77,74,76,81,75,78,84,78,82,81,76,67,69,65,67,67,74,65,42,40,40,46,7,0,71,68,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,24,46,39,0,0,39,52,40,0,0,0,65,52,0,28,32,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,50,44,0,0,0,0,0,0,0,0,0,0,48,55,52,0,0,0,0,0,0,0,60,47,0,0,0,0,0,0,0,15,61,83,80,51,68,76,84,79,68,59,71,77,71,51,0,0,16,10,0,0,65,76,58,83,65,37,43,28,0,28,31,14,0,0,0,0,0,0,0,71,95,90,61,35,0,35,85,79,66,15,0,0,0,0,49,48,57,59,84,80,89]],"spans":[[0.0,25.0,1]]}],"bounds":[],"jump":0.0,"jumpLabel":"From the start","where":"14:28\u201314:53 of a 25-min call","session":"17f79204"},"overview":{"released":[{"w":2.0,"c":"#9641FF","tip":"0:00\u20130:30: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"0:30\u20130:57: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"0:57\u20131:24: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"1:24\u20131:51: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"1:51\u20132:18: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"2:18\u20132:45: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"2:45\u20133:12: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"3:12\u20133:39: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"3:39\u20134:06: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"4:06\u20134:33: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"4:33\u20135:00: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"5:00\u20135:27: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"5:27\u20135:54: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"5:54\u20136:21: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"6:21\u20136:48: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"6:48\u20137:15: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"7:15\u20137:42: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"7:42\u20138:09: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"8:09\u20138:36: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"8:36\u20139:03: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"9:03\u20139:30: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"9:30\u20139:57: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"9:57\u201310:24: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"10:24\u201310:51: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"10:51\u201311:18: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"11:18\u201311:45: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"11:45\u201312:12: Track 1 = Speaker A"},{"w":1.8,"c":"#3A3A3D","tip":"12:12\u201312:39: Track 1 = too little speech to score"},{"w":1.8,"c":"#FF0132","tip":"12:39\u201313:06: Track 1 = Speaker B"},{"w":1.8,"c":"#FF0132","tip":"13:06\u201313:33: Track 1 = Speaker B"},{"w":1.8,"c":"#FF0132","tip":"13:33\u201314:00: Track 1 = Speaker B"},{"w":1.8,"c":"#FF0132","tip":"14:00\u201314:27: Track 1 = Speaker B"},{"w":1.8,"c":"#FF0132","tip":"14:27\u201314:54: Track 1 = Speaker B"},{"w":1.8,"c":"#FF0132","tip":"14:54\u201315:21: Track 1 = Speaker B"},{"w":1.8,"c":"#FF0132","tip":"15:21\u201315:48: Track 1 = Speaker B"},{"w":1.8,"c":"#FF0132","tip":"15:48\u201316:15: Track 1 = Speaker B"},{"w":1.8,"c":"#9641FF","tip":"16:15\u201316:42: Track 1 = Speaker A"},{"w":1.8,"c":"#FF0132","tip":"16:42\u201317:09: Track 1 = Speaker B"},{"w":1.8,"c":"#FF0132","tip":"17:09\u201317:36: Track 1 = Speaker B"},{"w":1.8,"c":"#9641FF","tip":"17:36\u201318:03: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"18:03\u201318:30: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"18:30\u201318:57: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"18:57\u201319:24: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"19:24\u201319:51: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"19:51\u201320:18: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"20:18\u201320:45: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"20:45\u201321:12: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"21:12\u201321:39: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"21:39\u201322:06: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"22:06\u201322:33: Track 1 = Speaker A"},{"w":1.8,"c":"#FF0132","tip":"22:33\u201323:00: Track 1 = Speaker B"},{"w":1.8,"c":"#FF0132","tip":"23:00\u201323:27: Track 1 = Speaker B"},{"w":1.8,"c":"#FF0132","tip":"23:27\u201323:54: Track 1 = Speaker B"},{"w":1.8,"c":"#3A3A3D","tip":"23:54\u201324:21: Track 1 = too little speech to score"},{"w":1.8,"c":"#FF0132","tip":"24:21\u201324:48: Track 1 = Speaker B"},{"w":0.8,"c":"#FF0132","tip":"24:48\u201325:00: Track 1 = Speaker B"}],"route":[{"w":2.0,"c":"#9641FF","tip":"0:00\u20130:30: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"0:30\u20130:57: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"0:57\u20131:24: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"1:24\u20131:51: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"1:51\u20132:18: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"2:18\u20132:45: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"2:45\u20133:12: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"3:12\u20133:39: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"3:39\u20134:06: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"4:06\u20134:33: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"4:33\u20135:00: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"5:00\u20135:27: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"5:27\u20135:54: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"5:54\u20136:21: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"6:21\u20136:48: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"6:48\u20137:15: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"7:15\u20137:42: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"7:42\u20138:09: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"8:09\u20138:36: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"8:36\u20139:03: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"9:03\u20139:30: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"9:30\u20139:57: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"9:57\u201310:24: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"10:24\u201310:51: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"10:51\u201311:18: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"11:18\u201311:45: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"11:45\u201312:12: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"12:12\u201312:39: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"12:39\u201313:06: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"13:06\u201313:33: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"13:33\u201314:00: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"14:00\u201314:27: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"14:27\u201314:54: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"14:54\u201315:21: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"15:21\u201315:48: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"15:48\u201316:15: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"16:15\u201316:42: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"16:42\u201317:09: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"17:09\u201317:36: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"17:36\u201318:03: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"18:03\u201318:30: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"18:30\u201318:57: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"18:57\u201319:24: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"19:24\u201319:51: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"19:51\u201320:18: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"20:18\u201320:45: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"20:45\u201321:12: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"21:12\u201321:39: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"21:39\u201322:06: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"22:06\u201322:33: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"22:33\u201323:00: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"23:00\u201323:27: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"23:27\u201323:54: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"23:54\u201324:21: Track 1 = Speaker A"},{"w":1.8,"c":"#9641FF","tip":"24:21\u201324:48: Track 1 = Speaker A"},{"w":0.8,"c":"#9641FF","tip":"24:48\u201325:00: Track 1 = Speaker A"}],"minutes":25.0,"wrong_released":6.5,"wrong_route":0.0,"mark":{"left":89.33,"width":2.0}}};
+
+// "22:20–22:50 of ..." -> 1340; and back to m:ss.
+function dsdemoSec(where) { var p = where.split('–')[0].split(':'); return 60 * +p[0] + +p[1]; }
+function dsdemoClock(s) { s = Math.round(s); var r = s % 60; return Math.floor(s / 60) + ':' + (r < 10 ? '0' : '') + r; }
+
+// Collapse consecutive same-owner chunks into one band; tips keep the merged time range.
+function dsdemoMerge(list) {
+  var out = [];
+  list.forEach(function (s) {
+    var i = s.tip.indexOf(': '), range = s.tip.slice(0, i), who = s.tip.slice(i + 2);
+    var ends = range.split('–'), last = out[out.length - 1];
+    if (last && last.c === s.c) { last.w += s.w; last.end = ends[1]; }
+    else out.push({ c: s.c, w: s.w, start: ends[0], end: ends[1], who: who });
+  });
+  return out.map(function (m) { return { c: m.c, w: m.w.toFixed(2), tip: m.start + '–' + m.end + ': ' + m.who }; });
+}
+
+// Points where Track 1 changes owner (grey "too little speech" chunks carry no owner).
+function dsdemoSwitches(list) {
+  var out = [], cum = 0, prev = null;
+  list.forEach(function (s) {
+    var owned = s.c !== '#3A3A3D';
+    if (owned && prev && s.c !== prev) out.push({ left: cum.toFixed(2), tip: 'Track 1 changes owner at ' + s.tip.split('–')[0] });
+    if (owned) prev = s.c;
+    cum += s.w;
+  });
+  return out;
+}
+
+function dsdemoTabs(labels, active, onPick) {
+  return labels.map(function (label, i) {
+    var on = i === active;
+    return { label: label, pressed: on,
+             bg: on ? '#F7F7F7' : 'transparent', color: on ? '#151515' : '#F7F7F7',
+             border: on ? '#F7F7F7' : 'rgba(255,255,255,.3)',
+             pick: function () { onPick(i); } };
+  });
+}
+
+// Floor examples compare re-ID with routing only; cached so the Player sees a stable object.
+var DSDEMO_FLOOR = {};
+function dsdemoFloorEx(ex) {
+  if (!DSDEMO_FLOOR[ex.id]) {
+    DSDEMO_FLOOR[ex.id] = Object.assign({}, ex, { systems: ex.systems.filter(function (s) { return s.key !== 'released'; }) });
+  }
+  return DSDEMO_FLOOR[ex.id];
+}
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { lt: 0, ft: 0, hp: '' };
+    var self = this;
+    this.onOther = function (e) { if (e.detail !== 'hero') self.stopHero(); };
+  }
+
+  componentDidMount() { window.addEventListener('dsdemo:play', this.onOther); }
+
+  componentWillUnmount() { window.removeEventListener('dsdemo:play', this.onOther); this.stopHero(); }
+
+  // Hero clip: Track 1 of Example 1 around its swap, played as a media-fragment range.
+  heroClip() {
+    var ex = DSDEMO_DATA.flip1, a = Math.max(0, ex.jump - 3);
+    return { ex: ex, from: a, to: Math.min(ex.dur, a + 10) };
+  }
+
+  stopHero() {
+    var a = this.heroAudio;
+    this.heroAudio = null;
+    if (a) a.pause();
+    if (this.state.hp) this.setState({ hp: '' });
+  }
+
+  heroToggle(key) {
+    if (this.state.hp === key) { this.stopHero(); return; }
+    this.stopHero();
+    var c = this.heroClip(), s = c.ex.systems.filter(function (k) { return k.key === key; })[0];
+    if (!s) return;
+    window.dispatchEvent(new CustomEvent('dsdemo:play', { detail: 'hero' }));
+    var self = this, a = new Audio(s.t1 + '#t=' + c.from + ',' + c.to);
+    var done = function () { if (self.heroAudio === a) self.stopHero(); };
+    a.addEventListener('pause', done);
+    a.addEventListener('ended', done);
+    a.addEventListener('timeupdate', function () { if (a.currentTime >= c.to) a.pause(); });
+    this.heroAudio = a;
+    this.setState({ hp: key });
+    var p = a.play();
+    if (p && p.catch) p.catch(done);
+  }
+
+  renderVals() {
+    var self = this, d = DSDEMO_DATA, o = d.overview;
+    var ticks = [0, 5, 10, 15, 20, 25].map(function (m) {
+      return { left: (100 * m / o.minutes).toFixed(2), shift: m === 0 ? 0 : (m === 25 ? -100 : -50), label: m + ' min' };
+    });
+    var strata = [
+      { name: 'Floor-holding', share: '12.2%', reid: 28.6, ours: 17.8, hl: true },
+      { name: 'Strong asymmetry', share: '10.0%', reid: 10.2, ours: 7.2 },
+      { name: 'Mild asymmetry', share: '30.0%', reid: 3.6, ours: 1.5 }
+    ].map(function (r) {
+      return Object.assign({}, r, {
+        bg: r.hl ? 'rgba(150,65,255,.10)' : 'rgba(255,255,255,.02)',
+        reidW: (100 * r.reid / 30).toFixed(1), oursW: (100 * r.ours / 30).toFixed(1),
+        reidTip: r.name + ': waveform re-ID ' + r.reid + '% wrong-track time',
+        oursTip: r.name + ': anchored routing ' + r.ours + '% wrong-track time'
+      });
+    });
+    var AX = 45;
+    var corpora = [
+      { name: 'CANDOR · Remote Calls', meta: '64 held-out sessions · 26.7 h · routing alone; waveform re-ID with the same enrollment: 6.2%', before: 43.9, after: 4.1, unseen: false },
+      { name: 'Seamless · Face-to-Face', meta: '360 improvised dyads · 25.3 h · routing 4.2%; verification on 20% of the output', before: 18.7, ring: 4.2, after: 1.7, unseen: true },
+      { name: 'SpokenWOZ · 8 kHz Telephone', meta: '200 dialogues · 10.9 h · routing 2.3%; verification on 36% of the output', before: 13.4, ring: 2.3, after: 0.9, unseen: true }
+    ].map(function (c) {
+      var bp = 100 * c.before / AX, ap = 100 * c.after / AX;
+      return Object.assign({}, c, {
+        beforeP: bp.toFixed(2), afterP: ap.toFixed(2), spanP: (bp - ap).toFixed(2),
+        beforeShift: bp > 90 ? -100 : -50,
+        afterShift: ap < 8 ? 0 : -50, afterNudge: ap < 8 ? -9 : 0,
+        hasRing: c.ring !== undefined, ringP: c.ring !== undefined ? (100 * c.ring / AX).toFixed(2) : '0',
+        ringTip: c.ring !== undefined ? 'Routing alone: ' + c.ring.toFixed(1) + '%' : '',
+        before: c.before.toFixed(1) + '%', after: c.after.toFixed(1) + '%'
+      });
+    });
+    var axis = [0, 10, 20, 30, 40].map(function (v) {
+      return { left: (100 * v / AX).toFixed(2), shift: v === 0 ? 0 : -50, label: v + '%' };
+    });
+    var lt = this.state.lt, ft = this.state.ft, hp = this.state.hp;
+    var clip = this.heroClip(), w0 = dsdemoSec(clip.ex.where);
+    var span = dsdemoClock(w0 + clip.from) + '–' + dsdemoClock(w0 + clip.to);
+    var hero = {
+      pb: 36,
+      hint: 'Press play to hear Track 1 at ' + span + '. Without anchors it changes speaker at ' + dsdemoClock(w0 + clip.ex.jump) + '.',
+      markText: dsdemoClock(w0 + clip.ex.jump) + ' · Example 1',
+      relPlaying: hp === 'released', routePlaying: hp === 'route',
+      relLabel: (hp === 'released' ? 'Pause' : 'Play') + ' Track 1, baseline, ' + span,
+      routeLabel: (hp === 'route' ? 'Pause' : 'Play') + ' Track 1, anchored routing, ' + span,
+      playRel: function () { self.heroToggle('released'); },
+      playRoute: function () { self.heroToggle('route'); }
+    };
+    return {
+      hero: hero,
+      wm: 24, wmSmall: 22,
+      ex: d,
+      ov: { released: dsdemoMerge(o.released), route: dsdemoMerge(o.route), switches: dsdemoSwitches(o.released),
+            wrongReleased: o.wrong_released, wrongRoute: o.wrong_route === 0 ? '0' : o.wrong_route,
+            markLeft: o.mark.left, markW: o.mark.width, markRight: (100 - o.mark.left - o.mark.width).toFixed(2),
+            ticks: ticks },
+      listenTabs: dsdemoTabs(['Example 1', 'Example 2'], lt, function (i) { self.setState({ lt: i }); }),
+      listen1: lt === 0, listen2: lt === 1,
+      listenEx: lt === 0 ? d.flip1 : d.flip2,
+      floorTabs: dsdemoTabs(['Example 3', 'Example 4'], ft, function (i) { self.setState({ ft: i }); }),
+      floor1: ft === 0, floor2: ft === 1,
+      floorEx: dsdemoFloorEx(ft === 0 ? d.floor21 : d.floor23),
+      strata: strata,
+      corpora: corpora,
+      axis: axis,
+      proof: [
+        { eyebrow: 'Fixed-track activity F1', from: '0.46', value: '0.84', text: 'Each track follows one person’s turns across the whole call. In fixed order, speaker similarity rises from 0.27 to 0.43 (CANDOR).' },
+        { eyebrow: 'With 120 s chunks', value: '1.9%', text: 'Four times fewer boundaries still leave 18.8% without alignment and 21.2% under the released rule; re-ID reaches 4.7%.' },
+        { eyebrow: 'Of all errors', value: '89.2%', text: 'sit in the lowest-margin 22.3% of chunks (margin below 0.30, three corpora pooled): the margin shows verification where to look.' }
+      ].map(function (p) { return Object.assign({ from: '', hasFrom: !!p.from }, p); })
+    };
+  }
+}
+
+return Component;
+});
+DC.mount('Main', document.getElementById('app'));
+if (location.hash) { var dcT = document.getElementById(location.hash.slice(1)); if (dcT) dcT.scrollIntoView(); }
+</script>
+</body>
+</html>
